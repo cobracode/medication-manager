@@ -14,6 +14,7 @@ A simple medication tracking app.
 - [ ] Setup SST skeleton
   - [x] download/install SST
   - [ ] setup config file
+  - [x] fix fixable vulnerabilities
 - [ ] Setup DB skeleton
 - [ ] Setup backend skeleton
 - [ ] Setup frontend skeleton
