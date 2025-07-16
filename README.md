@@ -12,11 +12,12 @@ A simple medication tracking app.
 
 ## Steps
 - [ ] Setup SST skeleton
-  - [ ] download/install SST
+  - [x] download/install SST
   - [ ] setup config file
 - [ ] Setup DB skeleton
 - [ ] Setup backend skeleton
 - [ ] Setup frontend skeleton
+- [ ] Add tests
 
 
 ## Requirements
