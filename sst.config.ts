@@ -19,9 +19,17 @@ export default $config({
     const storage = await import("./infra/storage");
     const api = await import("./infra/api");
 
+    const webapp = new sst.aws.Nextjs("WebApp", {
+      path: "packages/web",
+      link: [api]
+    });
+
     return {
+      "api-arn": api.myApi.arn,
+      "webapp-url": webapp.url,
+      "webapp-urn": webapp.urn,
+      "webapp-sst-link": webapp.getSSTLink.toString(),
       "bucket-name": storage.bucket.name,
-      "api-arn": api.myApi.arn
     };
   },
 });

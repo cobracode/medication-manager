@@ -2,7 +2,7 @@ import { Resource } from "sst";
 import { Handler } from "aws-lambda";
 import { Example } from "@medication-manager/core/example";
 
-export const handler: Handler = async (_event) => {
+export const helloWorld: Handler = async (_event) => {
   return {
     statusCode: 200,
     body: {

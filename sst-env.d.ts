@@ -5,7 +5,7 @@
 
 declare module "sst" {
   export interface Resource {
-    "MyApi": {
+    "HelloWorldFunction": {
       "name": string
       "type": "sst.aws.Function"
       "url": string
@@ -13,6 +13,10 @@ declare module "sst" {
     "MyBucket": {
       "name": string
       "type": "sst.aws.Bucket"
+    }
+    "WebApp": {
+      "type": "sst.aws.Nextjs"
+      "url": string
     }
   }
 }
