@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Resource } from "sst";
 
 export default function Home() {
   return (
@@ -21,7 +22,13 @@ export default function Home() {
             .
           </li>
           <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
+          Linked to <code>{Resource.HelloWorldFunction.name}</code>
+          </li>
+          <li className="tracking-[-.01em]">
+          Linked to <code>{Resource.HelloWorldFunction.type}</code>
+          </li>
+          <li className="tracking-[-.01em]">
+          Linked to <code>{Resource.HelloWorldFunction.url}</code>
           </li>
         </ol>
 

@@ -21,7 +21,7 @@ export default $config({
 
     const webapp = new sst.aws.Nextjs("WebApp", {
       path: "packages/web",
-      link: [api]
+      link: [api.myApi]
     });
 
     return {
