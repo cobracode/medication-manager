@@ -31,7 +31,9 @@ export default $config({
       "webapp-urn": webapp.urn,
       "webapp-sst-link": webapp.getSSTLink.toString(),
       "bucket-name": storage.bucket.name,
-      mysql: mysql.mysql.host
+      mysql: mysql.mysql.host,
+      "mysql-id": mysql.mysql.id,
+      "mysql-database-get": mysql.mysql.database
     };
   },
 });
