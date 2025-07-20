@@ -5,6 +5,9 @@ import { Example } from "@medication-manager/core/example";
 export const handler: Handler = async (_event) => {
   return {
     statusCode: 200,
-    body: `${Example.hello()} Linked to ${Resource.MyBucket.name}.`,
+    body: {
+      text: `Ned here! ${Example.hello()} Linked to ${Resource.MyBucket.name}.`,
+      event: _event
+    }
   };
 };
