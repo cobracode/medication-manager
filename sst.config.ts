@@ -18,6 +18,7 @@ export default $config({
   async run() {
     const storage = await import("./infra/storage");
     const api = await import("./infra/api");
+    const mysql = await import("./infra/db")
 
     const webapp = new sst.aws.Nextjs("WebApp", {
       path: "packages/web",
@@ -30,6 +31,7 @@ export default $config({
       "webapp-urn": webapp.urn,
       "webapp-sst-link": webapp.getSSTLink.toString(),
       "bucket-name": storage.bucket.name,
+      mysql: mysql.mysql.host
     };
   },
 });

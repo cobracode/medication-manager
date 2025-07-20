@@ -14,6 +14,17 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Bucket"
     }
+    "MySql": {
+      "database": string
+      "host": string
+      "password": string
+      "port": number
+      "type": "sst.aws.Mysql"
+      "username": string
+    }
+    "Vpc": {
+      "type": "sst.aws.Vpc"
+    }
     "WebApp": {
       "type": "sst.aws.Nextjs"
       "url": string
