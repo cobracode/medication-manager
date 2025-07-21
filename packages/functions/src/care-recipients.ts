@@ -34,9 +34,6 @@ export const handler = async (
     const httpMethod = event.requestContext.http.method;
     const pathParameters = event.pathParameters;
 
-    console.log("event", event);
-    console.log("httpMethod", httpMethod);
-
     switch (httpMethod) {
       case 'GET':
         return await getCareRecipients(userId, headers);

@@ -1,4 +1,4 @@
-import { User } from 'react-oidc-context';
+import { User } from 'oidc-client-ts';
 
 // Types imported from backend
 export interface CareRecipient {
@@ -64,7 +64,7 @@ class ApiClient {
                    'http://localhost:3001/api'; // Fallback for local development
     
     if (typeof window !== 'undefined') {
-      console.log('API Client initialized with baseUrl:', this.baseUrl);
+      console.log('!!! - API Client initialized with baseUrl:', this.baseUrl);
     }
   }
 
@@ -104,7 +104,7 @@ class ApiClient {
         },
       });
 
-      console.log("response", response);
+      console.log("!!! - response", response);
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
