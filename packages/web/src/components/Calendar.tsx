@@ -18,17 +18,32 @@ export default function Calendar({ doses }: CalendarProps) {
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().split('T')[0]
   );
+  const [weekOffset, setWeekOffset] = useState<number>(0);
 
-  // Get next 7 days
-  const getNextWeek = () => {
+  // Get week starting from a specific offset
+  const getWeek = (offset: number) => {
     const days = [];
     const today = new Date();
+    const startDate = new Date(today);
+    startDate.setDate(today.getDate() + (offset * 7));
+    
     for (let i = 0; i < 7; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + i);
       days.push(date.toISOString().split('T')[0]);
     }
     return days;
+  };
+
+  const navigateWeek = (direction: 'prev' | 'next') => {
+    const newOffset = direction === 'prev' ? weekOffset - 1 : weekOffset + 1;
+    setWeekOffset(newOffset);
+    
+    // Update selected date to first day of new week if current selection is not in visible week
+    const newWeek = getWeek(newOffset);
+    if (!newWeek.includes(selectedDate)) {
+      setSelectedDate(newWeek[0]);
+    }
   };
 
   const formatDate = (dateStr: string) => {
@@ -44,15 +59,54 @@ export default function Calendar({ doses }: CalendarProps) {
     return doses.filter(dose => dose.date === date);
   };
 
-  const nextWeek = getNextWeek();
+  const currentWeek = getWeek(weekOffset);
+
+  const getWeekTitle = () => {
+    const firstDay = new Date(currentWeek[0]);
+    const lastDay = new Date(currentWeek[6]);
+    const firstMonth = firstDay.toLocaleDateString('en-US', { month: 'short' });
+    const lastMonth = lastDay.toLocaleDateString('en-US', { month: 'short' });
+    
+    if (firstMonth === lastMonth) {
+      return `${firstMonth} ${firstDay.getDate()}-${lastDay.getDate()}`;
+    } else {
+      return `${firstMonth} ${firstDay.getDate()} - ${lastMonth} ${lastDay.getDate()}`;
+    }
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-xl font-semibold mb-4">Upcoming Medication Schedule</h2>
+      {/* Header with navigation */}
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-semibold">Medication Schedule</h2>
+        <div className="flex items-center space-x-4">
+          <span className="text-sm text-gray-600">{getWeekTitle()}</span>
+          <div className="flex space-x-2">
+            <button
+              onClick={() => navigateWeek('prev')}
+              className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              aria-label="Previous week"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button
+              onClick={() => navigateWeek('next')}
+              className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              aria-label="Next week"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
       
       {/* Week view */}
       <div className="grid grid-cols-7 gap-2 mb-6">
-        {nextWeek.map((date) => {
+        {currentWeek.map((date) => {
           const { day, date: dayNum, month } = formatDate(date);
           const dayDoses = getDosesForDate(date);
           const isToday = date === new Date().toISOString().split('T')[0];
