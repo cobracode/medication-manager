@@ -10,6 +10,8 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "oidc-client-ts": "^3.3.0",
+    "react-oidc-context": "^3.3.0",
     "sst": "^3"
   }
 }
