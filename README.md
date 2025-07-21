@@ -23,7 +23,9 @@ A simple medication tracking app.
 - [x] Setup frontend skeleton
 - [ ] build components
 - [ ] Add tests
-- [ ] Fix logout 400 error
+- [ ] Fixes
+  - [ ] Fix logout 400 error
+  - [ ] Fix initially selected day in calendar view
 
 
 ## Requirements

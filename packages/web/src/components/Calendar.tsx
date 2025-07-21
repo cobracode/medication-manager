@@ -15,10 +15,13 @@ interface CalendarProps {
 }
 
 export default function Calendar({ doses }: CalendarProps) {
-  const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toISOString().split('T')[0]
-  );
+  const today = new Date();
+  const todayIso = today.toISOString().split('T')[0];
+  console.log("today", today, todayIso);
+
+  const [selectedDate, setSelectedDate] = useState<string>(todayIso);
   const [weekOffset, setWeekOffset] = useState<number>(0);
+  console.log("selectedDate", selectedDate);
 
   // Get week starting from a specific offset
   const getWeek = (offset: number) => {
@@ -32,6 +35,7 @@ export default function Calendar({ doses }: CalendarProps) {
       date.setDate(startDate.getDate() + i);
       days.push(date.toISOString().split('T')[0]);
     }
+    console.log("week days", days);
     return days;
   };
 

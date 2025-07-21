@@ -5,10 +5,22 @@
 
 declare module "sst" {
   export interface Resource {
+    "CareRecipientsFunction": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
     "HelloWorldFunction": {
       "name": string
       "type": "sst.aws.Function"
       "url": string
+    }
+    "MedicationApi": {
+      "type": "sst.aws.ApiGatewayV2"
+      "url": string
+    }
+    "MedicationsFunction": {
+      "name": string
+      "type": "sst.aws.Function"
     }
     "MyBucket": {
       "name": string
@@ -21,6 +33,10 @@ declare module "sst" {
       "port": number
       "type": "sst.aws.Mysql"
       "username": string
+    }
+    "UserFunction": {
+      "name": string
+      "type": "sst.aws.Function"
     }
     "Vpc": {
       "type": "sst.aws.Vpc"

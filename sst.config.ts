@@ -22,7 +22,7 @@ export default $config({
 
     const webapp = new sst.aws.Nextjs("WebApp", {
       path: "packages/web",
-      link: [api.myApi],
+      link: [api.medicationApi, api.myApi],
       environment: {
         NEXT_PUBLIC_COGNITO_ISSUER: "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_lEyFKjDvb",
         NEXT_PUBLIC_COGNITO_CLIENT_ID: "cq3ooogjeamql973kmvi10qh1",
@@ -53,6 +53,7 @@ const oidcConfig = {
 
     return {
       "api-arn": api.myApi.arn,
+      "medication-api-url": api.medicationApi.url,
       "webapp-url": webapp.url,
       "webapp-urn": webapp.urn,
       "webapp-sst-link": webapp.getSSTLink.toString(),

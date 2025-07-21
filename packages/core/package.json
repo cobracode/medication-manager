@@ -12,7 +12,8 @@
     ]
   },
   "dependencies": {
-    "sst": "*"
+    "sst": "*",
+    "mysql2": "^3.6.5"
   },
   "devDependencies": {
     "vitest": "^2"
