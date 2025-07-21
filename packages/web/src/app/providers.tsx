@@ -10,9 +10,10 @@ const oidcConfig = {
   redirect_uri: process.env.NEXT_PUBLIC_APP_URL + '/api/callback',
   response_type: 'code',
   scope: 'openid profile email',
-  // userStore: new WebStorageStateStore({ store: window.localStorage }),
+  userStore: typeof window !== 'undefined' ? new WebStorageStateStore({ store: window.localStorage }) : undefined,
   automaticSilentRenew: true,
   silent_redirect_uri: process.env.NEXT_PUBLIC_APP_URL + '/silent-callback',
+  post_logout_redirect_uri: process.env.NEXT_PUBLIC_APP_URL
 };
 
 // const ClientOnlyAuthProvider = dynamic(

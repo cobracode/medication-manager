@@ -1,9 +1,34 @@
+
 'use client';
 
 import { useAuth } from 'react-oidc-context';
+import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function Home() {
   const auth = useAuth();
+  const searchParams = useSearchParams();
+  const [code, setCode] = useState<string | null>(null);
+  const [state, setState] = useState<string | null>(null);
+  const router = useRouter();
+  
+  useEffect(() => {
+    // Get the OIDC code and state from query parameters
+    const code = searchParams.get('code');
+    const state = searchParams.get('state');
+    
+    if (code && state) {
+      // Handle OIDC callback
+      setCode(code);
+      setState(state);
+
+      // Remove the URL parameters from the address bar
+      const params = new URLSearchParams(searchParams)
+      params.delete('code');
+      params.delete('state');
+      router.replace(`${window.location.pathname}?${params.toString()}`, { scroll: false });
+    }
+  }, [searchParams]);
 
   if (auth.isLoading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
@@ -31,7 +56,7 @@ export default function Home() {
       <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
           <h1 className="text-2xl font-bold text-center text-gray-900 mb-6">
-            Welcome to Medication Manager
+            Welcome, {auth.user?.profile.nickname} to Medication Manager!
           </h1>
           <div className="space-y-4">
             <div>
@@ -39,7 +64,26 @@ export default function Home() {
               <p className="font-medium">{auth.user?.profile?.name || auth.user?.profile?.email}</p>
             </div>
             <button
-              onClick={() => auth.signoutRedirect()}
+              onClick={() => {
+                auth.signoutRedirect();
+
+                // PROTOTYPING TO FIX THE LOGOUT 400 ERROR
+                // window.console.log(`CLICKED LOGOUT! state: ${state}, code: ${code}`);
+
+                // auth.signoutSilent();
+
+                // "extraQueryParams" | "state" | "id_token_hint" | "post_logout_redirect_uri" | "url_state">;
+
+                // auth.signoutRedirect({
+                //   extraQueryParams: {
+                //     logout_uri: "http://localhost:3000"
+                //     // id_token_hint: "",
+                //     // post_logout_redirect_uri: "http://localhost:3000",
+                //     // state: state || "",
+                //     // url_state: state || ""
+                //   }
+                // });
+              }}
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
             >
               Sign Out

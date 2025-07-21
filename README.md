@@ -16,11 +16,14 @@ A simple medication tracking app.
   - [x] setup config file
 - [x] Setup DB skeleton
   - [ ] setup data model
-- [ ] Setup auth
+- [x] Setup auth
+  - [x] access user info in react
+  - [ ] access user info in the lambda function
 - [x] Setup backend skeleton
 - [x] Setup frontend skeleton
 - [ ] build components
 - [ ] Add tests
+- [ ] Fix logout 400 error
 
 
 ## Requirements
