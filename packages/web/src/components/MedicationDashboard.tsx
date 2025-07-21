@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import Calendar from './Calendar';
 import AddMedicationModal from './AddMedicationModal';
-import { mockCareRecipients, mockMedicationDoses, generateRecurringDoses, MedicationDose } from '../lib/mockData';
+import CareRecipientModal from './CareRecipientModal';
+import { mockCareRecipients, mockMedicationDoses, generateRecurringDoses, MedicationDose, CareRecipient } from '../lib/mockData';
 
 interface User {
   profile?: {
@@ -21,6 +22,8 @@ interface MedicationDashboardProps {
 export default function MedicationDashboard({ user, onSignOut }: MedicationDashboardProps) {
   const [doses, setDoses] = useState<MedicationDose[]>(generateRecurringDoses(mockMedicationDoses, 14));
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCareRecipient, setSelectedCareRecipient] = useState<CareRecipient | null>(null);
+  const [isCareRecipientModalOpen, setIsCareRecipientModalOpen] = useState(false);
 
   const handleAddMedication = (newMedication: {
     medicationName: string;
@@ -46,6 +49,11 @@ export default function MedicationDashboard({ user, onSignOut }: MedicationDashb
     // Generate recurring doses if needed
     const newDoses = generateRecurringDoses([newDose], 14);
     setDoses(prev => [...prev, ...newDoses]);
+  };
+
+  const handleCareRecipientClick = (recipient: CareRecipient) => {
+    setSelectedCareRecipient(recipient);
+    setIsCareRecipientModalOpen(true);
   };
 
   return (
@@ -98,7 +106,11 @@ export default function MedicationDashboard({ user, onSignOut }: MedicationDashb
                   );
                   
                   return (
-                    <div key={recipient.id} className="p-3 bg-gray-50 rounded-lg">
+                    <div 
+                      key={recipient.id} 
+                      className="p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                      onClick={() => handleCareRecipientClick(recipient)}
+                    >
                       <div className="font-medium">{recipient.name}</div>
                       <div className="text-sm text-gray-600">
                         {recipient.relationship}, age {recipient.age}
@@ -108,6 +120,7 @@ export default function MedicationDashboard({ user, onSignOut }: MedicationDashb
                           {todaysDoses.length} dose{todaysDoses.length > 1 ? 's' : ''} today
                         </div>
                       )}
+                      <div className="text-xs text-gray-400 mt-1">Click to view upcoming doses</div>
                     </div>
                   );
                 })}
@@ -123,6 +136,14 @@ export default function MedicationDashboard({ user, onSignOut }: MedicationDashb
         onClose={() => setIsModalOpen(false)}
         onAdd={handleAddMedication}
         careRecipients={mockCareRecipients}
+      />
+
+      {/* Care Recipient Modal */}
+      <CareRecipientModal
+        isOpen={isCareRecipientModalOpen}
+        onClose={() => setIsCareRecipientModalOpen(false)}
+        careRecipient={selectedCareRecipient}
+        doses={doses}
       />
     </div>
   );
