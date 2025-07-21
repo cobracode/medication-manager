@@ -18,6 +18,15 @@ declare module "sst" {
       "type": "sst.aws.ApiGatewayV2"
       "url": string
     }
+    "MedicationManagerUserPool": {
+      "id": string
+      "type": "sst.aws.CognitoUserPool"
+    }
+    "MedicationManagerWebClient": {
+      "id": string
+      "secret": string
+      "type": "sst.aws.CognitoUserPoolClient"
+    }
     "MedicationsFunction": {
       "name": string
       "type": "sst.aws.Function"

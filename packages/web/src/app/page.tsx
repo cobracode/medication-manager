@@ -10,6 +10,17 @@ export default function Home() {
   const auth = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  const signOutRedirect = () => {
+    const clientId = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID;
+    const logoutUri = process.env.NEXT_PUBLIC_LOGOUT_URI || "";
+    const cognitoDomain = process.env.NEXT_PUBLIC_COGNITO_DOMAIN;
+    const url = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
+    auth.signoutRedirect();
+    // window.location.href = url;
+    router.replace(url);
+    console.log("redirecting to", url);
+  };
   
   useEffect(() => {
     // Get the OIDC code and state from query parameters
@@ -49,7 +60,7 @@ export default function Home() {
   }
 
   if (auth.isAuthenticated) {
-    return <MedicationDashboard user={auth.user || null} onSignOut={() => auth.signoutRedirect()} />;
+    return <MedicationDashboard user={auth.user || null} onSignOut={() => signOutRedirect()} />;
   }
 
   return (

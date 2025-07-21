@@ -1,3 +1,4 @@
+// Legacy types - use api-client types for new code
 export interface CareRecipient {
   id: string;
   name: string;
@@ -13,6 +14,27 @@ export interface MedicationDose {
   time: string;
   date: string;
   recurrence?: 'daily' | 'weekly';
+}
+
+// Type conversion utilities for backward compatibility
+export function convertBackendCareRecipient(recipient: import('./api-client').CareRecipient): CareRecipient {
+  return {
+    id: recipient.id,
+    name: recipient.name,
+    age: recipient.age || 0,
+    relationship: recipient.relationship || '',
+  };
+}
+
+export function convertBackendMedicationDose(dose: import('./api-client').MedicationDose, careRecipientName: string): MedicationDose {
+  return {
+    id: dose.id,
+    medicationName: dose.medicationName,
+    careRecipientId: dose.careRecipientId,
+    careRecipientName,
+    time: dose.scheduledTime,
+    date: dose.scheduledDate,
+  };
 }
 
 export const mockCareRecipients: CareRecipient[] = [
