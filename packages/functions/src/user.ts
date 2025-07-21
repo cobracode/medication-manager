@@ -64,9 +64,9 @@ export const handler = async (
 
 async function getUserProfile(
   userId: string,
+  headers: any,
   email?: string,
   name?: string,
-  headers: any
 ): Promise<APIGatewayProxyResultV2> {
   // TODO: Replace with actual database query
   // For now, return profile based on Cognito claims with mock data
