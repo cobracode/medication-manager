@@ -17,6 +17,8 @@ export default function CareRecipientModal({
 }: CareRecipientModalProps) {
   if (!isOpen || !careRecipient) return null;
 
+  console.log("!!!   careRecipient", careRecipient);
+
   // Filter and sort upcoming doses for this care recipient
   const today = new Date().toISOString().split('T')[0];
   const upcomingDoses = doses

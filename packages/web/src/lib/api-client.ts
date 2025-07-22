@@ -4,11 +4,9 @@ import { User } from 'oidc-client-ts';
 export interface CareRecipient {
   id: string;
   name: string;
-  dateOfBirth?: string;
-  relationship?: string;
   isActive: boolean;
   userId: string;
-  age?: number; // computed field
+  age: number;
 }
 
 export interface MedicationDose {

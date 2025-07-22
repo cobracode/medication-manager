@@ -14,8 +14,7 @@ export interface CareRecipient {
   id: string;
   userId: string;
   name: string;
-  dateOfBirth?: Date;
-  relationship?: string;
+  age: number;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -120,5 +119,5 @@ export interface MedicationDoseWithRecipient extends MedicationDose {
 export interface CareRecipientWithUpcomingMeds extends CareRecipient {
   upcomingMedications: MedicationDose[];
   todaysMedications: MedicationDose[];
-  age?: number; // Computed from dateOfBirth
+  age: number; // Computed from dateOfBirth
 }

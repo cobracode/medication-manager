@@ -3,7 +3,6 @@ export interface CareRecipient {
   id: string;
   name: string;
   age: number;
-  relationship: string;
 }
 
 export interface MedicationDose {
@@ -21,8 +20,7 @@ export function convertBackendCareRecipient(recipient: import('./api-client').Ca
   return {
     id: recipient.id,
     name: recipient.name || '',
-    age: recipient.age || 0,
-    relationship: recipient.relationship || '',
+    age: recipient.age || 0
   };
 }
 
@@ -42,31 +40,26 @@ export const mockCareRecipients: CareRecipient[] = [
     id: '1',
     name: 'Eleanor Smith',
     age: 78,
-    relationship: 'Mother'
   },
   {
     id: '2',
     name: 'Robert Johnson',
     age: 85,
-    relationship: 'Father-in-law'
   },
   {
     id: '3',
     name: 'Mary Williams',
     age: 72,
-    relationship: 'Aunt'
   },
   {
     id: '4',
     name: 'James Brown',
     age: 69,
-    relationship: 'Uncle'
   },
   {
     id: '5',
     name: 'Patricia Davis',
     age: 81,
-    relationship: 'Grandmother'
   }
 ];
 
