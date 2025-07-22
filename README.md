@@ -12,6 +12,16 @@ A simple medication tracking app!
 8. You can also mark individual or recurring medication doses as **inactive**, for the current Care Recipient, or for all Care Recipients (say, a medication has a recall and must not be used immediately).
 
 
+## Deprioritized Scope
+Most of my time was spent debugging AWS Cognito issues and then DB connectivity based on the availability zones I had set. Some confusion also took time in seeing documentation and examples from SST v2 that were incompatible with v3, which took a while to understand and then fix. I'd hoped to get to these sooner, but they remain:
+
+**Deferred items:**
+1. Fixing a few logic bugs: There's a bug around the current day and the week in the calendar view.
+2. Unit tests: while there is a script or two for testing out database functionality, unit tests were deferred to get the core functionality running.
+3. Refactoring the code, now that it's in working order, to remove some of the cruft from prototying various ways to do things.
+4. (Possibly) Better error messages: while HTTP status codes are largely correct and the error messages basic, but adequate, with time I'd of liked to audit them and make them stronger, if applicable.
+
+
 ## Design Choice and Trade-offs
 ### Infra: [SST v3](https://sst.dev/)
 This being a serverless, cloud-native web application brought to mind Serverless Stack Toolkit (SST), as it could handle the details of AWS ApiGateway, Lambda, RDS, and even user auth via Cognito. I'd never tried it before and this project felt like a good time to learn. Particularly as I learned that Homethrive uses or is looking into using it.
