@@ -7,7 +7,7 @@ export interface CareRecipient {
 }
 
 export interface MedicationDose {
-  id: string;
+  id: number;
   medicationName: string;
   careRecipientId: string;
   careRecipientName: string;
@@ -20,7 +20,7 @@ export interface MedicationDose {
 export function convertBackendCareRecipient(recipient: import('./api-client').CareRecipient): CareRecipient {
   return {
     id: recipient.id,
-    name: recipient.name,
+    name: recipient.name || '',
     age: recipient.age || 0,
     relationship: recipient.relationship || '',
   };
@@ -72,7 +72,7 @@ export const mockCareRecipients: CareRecipient[] = [
 
 export const mockMedicationDoses: MedicationDose[] = [
   {
-    id: '1',
+    id: 1,
     medicationName: 'Lisinopril 10mg',
     careRecipientId: '1',
     careRecipientName: 'Eleanor Smith',
@@ -81,7 +81,7 @@ export const mockMedicationDoses: MedicationDose[] = [
     recurrence: 'daily'
   },
   {
-    id: '2',
+    id: 2,
     medicationName: 'Metformin 500mg',
     careRecipientId: '1',
     careRecipientName: 'Eleanor Smith',
@@ -90,7 +90,7 @@ export const mockMedicationDoses: MedicationDose[] = [
     recurrence: 'daily'
   },
   {
-    id: '3',
+    id: 3,
     medicationName: 'Vitamin D',
     careRecipientId: '2',
     careRecipientName: 'Robert Johnson',
@@ -103,7 +103,7 @@ export const mockMedicationDoses: MedicationDose[] = [
     recurrence: 'weekly'
   },
   {
-    id: '4',
+    id: 4,
     medicationName: 'Advil 200mg',
     careRecipientId: '3',
     careRecipientName: 'Mary Williams',
@@ -115,7 +115,7 @@ export const mockMedicationDoses: MedicationDose[] = [
     })()
   },
   {
-    id: '5',
+    id: 5,
     medicationName: 'Calcium',
     careRecipientId: '4',
     careRecipientName: 'James Brown',
@@ -150,7 +150,7 @@ export function generateRecurringDoses(baseDoses: MedicationDose[], daysAhead: n
 
         allDoses.push({
           ...dose,
-          id: `${dose.id}-${i}`,
+          id: dose.id + i,
           date: nextDate.toISOString().split('T')[0]
         });
         

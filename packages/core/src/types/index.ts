@@ -22,7 +22,7 @@ export interface CareRecipient {
 }
 
 export interface MedicationDose {
-  id: string;
+  id: number;
   userId: string;
   careRecipientId: string;
   medicationName: string;

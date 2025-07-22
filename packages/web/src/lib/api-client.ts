@@ -12,7 +12,7 @@ export interface CareRecipient {
 }
 
 export interface MedicationDose {
-  id: string;
+  id: number;
   medicationName: string;
   careRecipientId: string;
   careRecipientName?: string; // populated by join
@@ -128,12 +128,7 @@ class ApiClient {
   // Care Recipients API
   async getCareRecipients(): Promise<CareRecipient[]> {
     const recipients = await this.request<CareRecipient[]>('/care-recipients');
-    
-    // Calculate age if dateOfBirth is provided
-    return recipients.map(recipient => ({
-      ...recipient,
-      age: recipient.dateOfBirth ? this.calculateAge(recipient.dateOfBirth) : undefined
-    }));
+    return recipients;
   }
 
   async createCareRecipient(data: CreateCareRecipientRequest): Promise<CareRecipient> {
@@ -171,8 +166,8 @@ class ApiClient {
     return this.request<MedicationDose[]>(endpoint);
   }
 
-  async createMedication(data: CreateMedicationRequest): Promise<MedicationDose[]> {
-    return this.request<MedicationDose[]>('/medications', {
+  async createMedication(data: CreateMedicationRequest): Promise<{ doses: MedicationDose[] }> {
+    return this.request<{ doses: MedicationDose[] }>('/medications', {
       method: 'POST',
       body: JSON.stringify(data),
     });

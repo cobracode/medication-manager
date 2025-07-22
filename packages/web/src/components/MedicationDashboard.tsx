@@ -34,7 +34,7 @@ export default function MedicationDashboard({ user, onSignOut }: MedicationDashb
   // Initialize API client with user
   useEffect(() => {
     if (auth.user) {
-      console.log("setting user", auth.user);
+      console.log("!!!   setting user", auth.user);
       apiClient.setUser(auth.user);
     }
   }, [auth.user]);
@@ -53,6 +53,9 @@ export default function MedicationDashboard({ user, onSignOut }: MedicationDashb
           apiClient.getCareRecipients(),
           apiClient.getMedications({ isActive: true })
         ]);
+
+        console.log("!!!   backendRecipients", backendRecipients);
+        console.log("!!!   backendMedications", backendMedications);
 
         // Convert backend data to frontend format
         const convertedRecipients = backendRecipients.map(convertBackendCareRecipient);
@@ -108,13 +111,15 @@ export default function MedicationDashboard({ user, onSignOut }: MedicationDashb
         recurrenceEndDate,
       });
 
+      console.log("!!!   createdDoses", createdDoses);
+
       // Convert to frontend format and add to state
       const careRecipient = careRecipients.find(cr => cr.id === newMedication.careRecipientId);
-      const convertedDoses = createdDoses.map(dose => 
+      const convertedDoses = createdDoses?.doses?.map(dose => 
         convertBackendMedicationDose(dose, careRecipient?.name || 'Unknown')
       );
       
-      setDoses(prev => [...prev, ...convertedDoses]);
+      setDoses(prev => [...prev, ...(convertedDoses || [])]);
       
     } catch (err) {
       console.error('Failed to add medication:', err);
@@ -212,7 +217,7 @@ export default function MedicationDashboard({ user, onSignOut }: MedicationDashb
                         >
                           <div className="font-medium">{recipient.name}</div>
                           <div className="text-sm text-gray-600">
-                            {recipient.relationship}, age {recipient.age}
+                            Age {recipient.age}
                           </div>
                           {todaysDoses.length > 0 && (
                             <div className="text-xs text-blue-600 mt-1">

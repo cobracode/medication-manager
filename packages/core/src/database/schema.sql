@@ -2,38 +2,49 @@
 
 -- Users table - synced with Cognito
 CREATE TABLE IF NOT EXISTS users (
-  id VARCHAR(255) PRIMARY KEY, -- Cognito user ID (sub claim)
+  id VARCHAR(255) PRIMARY KEY NOT NULL UNIQUE, -- Cognito user ID (sub claim)
   email VARCHAR(255) NOT NULL UNIQUE,
-  name VARCHAR(255),
-  phone VARCHAR(20),
-  timezone VARCHAR(50) DEFAULT 'UTC',
+  name VARCHAR(255) NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  
-  INDEX idx_email (email)
+  INDEX idx_users_email (email)
+);
+
+INSERT IGNORE INTO users (
+	id, email, `name`
+) VALUES (
+	'test-user-1', 'test-ned-email1@test.com', 'Ned1'
+), (
+	'test-user-2', 'test-ned-email2@test.com', 'Ned2'
 );
 
 -- Care recipients table
 CREATE TABLE IF NOT EXISTS care_recipients (
-  id VARCHAR(255) PRIMARY KEY,
-  user_id VARCHAR(255) NOT NULL,
-  name VARCHAR(255) NOT NULL,
-  date_of_birth DATE,
-  relationship VARCHAR(100),
-  is_active BOOLEAN DEFAULT TRUE,
+  id INT UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL UNIQUE,
+  caring_user_id VARCHAR(255) NOT NULL,
+  age INT UNSIGNED NOT NULL DEFAULT 50,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  INDEX idx_user_id (user_id),
-  INDEX idx_active (is_active)
+  FOREIGN KEY (caring_user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE,
+  INDEX idx_user_id (caring_user_id)
+);
+
+INSERT IGNORE INTO care_recipients (
+	`name`, age, caring_user_id
+) VALUES (
+	'Sarah', 58, 'test-user-1'
+), (
+	'Bob', 99, 'test-user-1'
+), (
+	'Joe', 77, 'test-user-1'
 );
 
 -- Medication doses table - stores individual scheduled doses
 CREATE TABLE IF NOT EXISTS medication_doses (
-  id VARCHAR(255) PRIMARY KEY,
+  id INT UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,
   user_id VARCHAR(255) NOT NULL,
-  care_recipient_id VARCHAR(255) NOT NULL,
+  care_recipient_id INT UNSIGNED NOT NULL,
   medication_name VARCHAR(255) NOT NULL,
   dosage VARCHAR(255) NOT NULL,
   scheduled_date DATE NOT NULL,
@@ -59,7 +70,7 @@ CREATE TABLE IF NOT EXISTS medication_doses (
 CREATE TABLE IF NOT EXISTS medication_templates (
   id VARCHAR(255) PRIMARY KEY,
   user_id VARCHAR(255) NOT NULL,
-  care_recipient_id VARCHAR(255) NOT NULL,
+  care_recipient_id INT UNSIGNED NOT NULL,
   medication_name VARCHAR(255) NOT NULL,
   dosage VARCHAR(255) NOT NULL,
   time_of_day TIME NOT NULL,

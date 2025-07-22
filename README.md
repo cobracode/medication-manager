@@ -16,13 +16,15 @@ A simple medication tracking app.
   - [x] setup config file
 - [x] Setup DB skeleton
   - [x] setup data model
-  - [ ] migrate/init data
+  - [x] migrate/init data
 - [x] Setup auth
   - [x] access user info in react
-  - [ ] access user info in the lambda function
+  - [x] access user info in the lambda function
 - [x] Setup backend skeleton
 - [x] Setup frontend skeleton
 - [x] build components
+- [ ] Remove 'remove medication functionality'
+- [ ] Change update medication to mark medication inactive
 - [ ] Add tests
 - [ ] Fixes
   - [ ] Fix logout 400 error

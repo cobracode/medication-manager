@@ -1,10 +1,9 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
-import { Resource } from 'sst';
-import { getDbConnection } from '@medication-manager/core/database/connection';
+import { getDbConnection } from '@medication-manager/core/database';
 import { randomUUID } from 'crypto';
 
 interface MedicationDose {
-  id: string;
+  id: number;
   medicationName: string;
   careRecipientId: string;
   scheduledDate: string;
@@ -38,7 +37,7 @@ export const handler = async (
 
   try {
     // Extract user ID from Cognito JWT claims
-    const userId = "1234"; //event.requestContext.authorizer?.claims?.sub;
+    const userId = "test-user-1"; //event.requestContext.authorizer?.claims?.sub;
     // if (!userId) {
     //   return {
     //     statusCode: 401,
@@ -120,52 +119,59 @@ async function getMedications(
   queryParams: any,
   headers: any
 ): Promise<APIGatewayProxyResultV2> {
-  // TODO: Replace with actual database query
-  // Support filtering by date range, care recipient, etc.
-  
-  const mockDoses: MedicationDose[] = [
-    {
-      id: '1',
-      medicationName: 'Blood Pressure Pills',
-      careRecipientId: '1',
-      scheduledDate: '2024-01-15',
-      scheduledTime: '09:00',
-      dosage: '1 pill',
-      isCompleted: false,
-      isActive: true,
-      userId,
-      createdAt: '2024-01-01T00:00:00Z',
-    },
-    {
-      id: '2',
-      medicationName: 'Vitamin D',
-      careRecipientId: '1',
-      scheduledDate: '2024-01-15',
-      scheduledTime: '18:00',
-      dosage: '2 pills',
-      isCompleted: true,
-      isActive: true,
-      userId,
-      createdAt: '2024-01-01T00:00:00Z',
-    },
-  ];
+  try {
+    const connection = await getDbConnection();
+    
+    let query = `SELECT id, medication_name, care_recipient_id, scheduled_date, scheduled_time, 
+                 dosage, is_completed, is_active, user_id, created_at 
+                 FROM medication_doses 
+                 WHERE user_id = ? AND is_active = true`;
+    
+    const queryValues: any[] = [userId];
+    
+    // Apply filtering if query params provided
+    if (queryParams.careRecipientId) {
+      query += ' AND care_recipient_id = ?';
+      queryValues.push(queryParams.careRecipientId);
+    }
+    
+    if (queryParams.dateFrom && queryParams.dateTo) {
+      query += ' AND scheduled_date >= ? AND scheduled_date <= ?';
+      queryValues.push(queryParams.dateFrom, queryParams.dateTo);
+    }
+    
+    query += ' ORDER BY scheduled_date, scheduled_time';
+    
+    const [rows] = await connection.execute(query, queryValues);
+    
+    const medications = (rows as any[]).map(row => ({
+      id: row.id,
+      medicationName: row.medication_name,
+      careRecipientId: row.care_recipient_id,
+      scheduledDate: new Date(row.scheduled_date).toISOString().split('T')[0],
+      scheduledTime: row.scheduled_time,
+      dosage: row.dosage,
+      isCompleted: row.is_completed,
+      isActive: row.is_active,
+      userId: row.user_id,
+      createdAt: row.created_at,
+    }));
 
-  // Apply basic filtering if query params provided
-  let filteredDoses = mockDoses;
-  if (queryParams.careRecipientId) {
-    filteredDoses = filteredDoses.filter(d => d.careRecipientId === queryParams.careRecipientId);
-  }
-  if (queryParams.dateFrom && queryParams.dateTo) {
-    filteredDoses = filteredDoses.filter(d => 
-      d.scheduledDate >= queryParams.dateFrom && d.scheduledDate <= queryParams.dateTo
-    );
-  }
+    console.log("!!!   medications", medications);
 
-  return {
-    statusCode: 200,
-    headers,
-    body: JSON.stringify(filteredDoses),
-  };
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify(medications),
+    };
+  } catch (error) {
+    console.error('Error getting medications:', error);
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({ error: 'Failed to get medications' }),
+    };
+  }
 }
 
 async function createMedication(
@@ -175,13 +181,18 @@ async function createMedication(
 ): Promise<APIGatewayProxyResultV2> {
   try {
     const connection = await getDbConnection();
+
+    // console.log("!!!   userId", userId);
+    // console.log("!!!   data", data);
     
     // First, verify the care recipient belongs to the user
     const careRecipientCheck = await connection.execute(
-      'SELECT id FROM care_recipients WHERE id = ? AND user_id = ? AND is_active = true',
+      'SELECT id FROM care_recipients WHERE id = ? AND caring_user_id = ?',
       [data.careRecipientId, userId]
     );
     
+    // console.log("!!!   careRecipientCheck", careRecipientCheck);
+
     if ((careRecipientCheck[0] as any[]).length === 0) {
       return {
         statusCode: 400,
@@ -224,20 +235,22 @@ async function createMedication(
       const endDate = new Date(data.recurrenceEndDate);
       
       for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-        const doseId = randomUUID();
         const scheduledDate = d.toISOString().split('T')[0];
         
-        await connection.execute(
+        const result = await connection.execute(
           `INSERT INTO medication_doses 
-           (id, user_id, care_recipient_id, medication_name, dosage, 
-            scheduled_date, scheduled_time, is_completed, is_active, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, false, true, NOW(), NOW())`,
-          [doseId, userId, data.careRecipientId, data.medicationName, data.dosage, 
+           (user_id, care_recipient_id, medication_name, dosage, 
+            scheduled_date, scheduled_time, is_completed, is_active)
+           VALUES (?, ?, ?, ?, ?, ?, false, true)`,
+          [userId, data.careRecipientId, data.medicationName, data.dosage, 
            scheduledDate, data.scheduledTime]
         );
-        
+
+        const [rows] = await connection.execute('SELECT MAX(id) as id FROM medication_doses') as [any[], any];
+        const newId = rows[0].id;
+
         doses.push({
-          id: doseId,
+          id: newId,
           medicationName: data.medicationName,
           careRecipientId: data.careRecipientId,
           scheduledDate,
@@ -255,20 +268,20 @@ async function createMedication(
       const endDate = new Date(data.recurrenceEndDate);
       
       for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 7)) {
-        const doseId = randomUUID();
         const scheduledDate = d.toISOString().split('T')[0];
         
         await connection.execute(
           `INSERT INTO medication_doses 
-           (id, user_id, care_recipient_id, medication_name, dosage, 
+           (user_id, care_recipient_id, medication_name, dosage, 
             scheduled_date, scheduled_time, is_completed, is_active, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, false, true, NOW(), NOW())`,
-          [doseId, userId, data.careRecipientId, data.medicationName, data.dosage, 
+           VALUES (?, ?, ?, ?, ?, ?, false, true, NOW(), NOW())`,
+          [userId, data.careRecipientId, data.medicationName, data.dosage, 
            scheduledDate, data.scheduledTime]
         );
-        
+        const [rows] = await connection.execute('SELECT MAX(id) as id FROM medication_doses') as [any[], any];
+        const newId = rows[0].id;
         doses.push({
-          id: doseId,
+          id: newId,
           medicationName: data.medicationName,
           careRecipientId: data.careRecipientId,
           scheduledDate,
@@ -282,19 +295,18 @@ async function createMedication(
       }
     } else {
       // Single dose
-      const doseId = randomUUID();
-      
       await connection.execute(
         `INSERT INTO medication_doses 
-         (id, user_id, care_recipient_id, medication_name, dosage, 
+         (user_id, care_recipient_id, medication_name, dosage, 
           scheduled_date, scheduled_time, is_completed, is_active, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, false, true, NOW(), NOW())`,
-        [doseId, userId, data.careRecipientId, data.medicationName, data.dosage, 
+         VALUES (?, ?, ?, ?, ?, ?, false, true, NOW(), NOW())`,
+        [userId, data.careRecipientId, data.medicationName, data.dosage, 
          data.scheduledDate, data.scheduledTime]
       );
-      
+      const [rows] = await connection.execute('SELECT MAX(id) as id FROM medication_doses') as [any[], any];
+      const newId = rows[0].id;
       doses.push({
-        id: doseId,
+        id: newId,
         medicationName: data.medicationName,
         careRecipientId: data.careRecipientId,
         scheduledDate: data.scheduledDate,
@@ -332,25 +344,68 @@ async function updateMedication(
   data: Partial<MedicationDose>,
   headers: any
 ): Promise<APIGatewayProxyResultV2> {
-  // TODO: Replace with actual database update
-  const updatedDose: MedicationDose = {
-    id,
-    medicationName: data.medicationName || 'Updated Medication',
-    careRecipientId: data.careRecipientId || '1',
-    scheduledDate: data.scheduledDate || '2024-01-01',
-    scheduledTime: data.scheduledTime || '09:00',
-    dosage: data.dosage || '1 pill',
-    isCompleted: data.isCompleted ?? false,
-    isActive: data.isActive ?? true,
-    userId,
-    createdAt: '2024-01-01T00:00:00Z',
-  };
+  try {
+    const connection = await getDbConnection();
+    
+    // First check if the medication exists and belongs to the user
+    const [checkRows] = await connection.execute(
+      'SELECT id FROM medication_doses WHERE id = ? AND user_id = ? AND is_active = true',
+      [id, userId]
+    );
+    
+    if ((checkRows as any[]).length === 0) {
+      return {
+        statusCode: 404,
+        headers,
+        body: JSON.stringify({ error: 'Medication not found' }),
+      };
+    }
+    
+    // Update the medication dose
+    await connection.execute(
+      `UPDATE medication_doses 
+       SET medication_name = ?, care_recipient_id = ?, scheduled_date = ?, 
+           scheduled_time = ?, dosage = ?, is_completed = ?, updated_at = NOW()
+       WHERE id = ? AND user_id = ?`,
+      [data.medicationName, data.careRecipientId, data.scheduledDate, 
+       data.scheduledTime, data.dosage, data.isCompleted, id, userId]
+    );
+    
+    // Fetch the updated record
+    const [rows] = await connection.execute(
+      `SELECT id, medication_name, care_recipient_id, scheduled_date, scheduled_time, 
+       dosage, is_completed, is_active, user_id, created_at 
+       FROM medication_doses WHERE id = ? AND user_id = ?`,
+      [id, userId]
+    );
+    
+    const updatedRow = (rows as any[])[0];
+    const updatedDose: MedicationDose = {
+      id: updatedRow.id,
+      medicationName: updatedRow.medication_name,
+      careRecipientId: updatedRow.care_recipient_id,
+      scheduledDate: updatedRow.scheduled_date,
+      scheduledTime: updatedRow.scheduled_time,
+      dosage: updatedRow.dosage,
+      isCompleted: updatedRow.is_completed,
+      isActive: updatedRow.is_active,
+      userId: updatedRow.user_id,
+      createdAt: updatedRow.created_at,
+    };
 
-  return {
-    statusCode: 200,
-    headers,
-    body: JSON.stringify(updatedDose),
-  };
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify(updatedDose),
+    };
+  } catch (error) {
+    console.error('Error updating medication:', error);
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({ error: 'Failed to update medication' }),
+    };
+  }
 }
 
 async function toggleCompletion(
@@ -358,13 +413,49 @@ async function toggleCompletion(
   userId: string,
   headers: any
 ): Promise<APIGatewayProxyResultV2> {
-  // TODO: Replace with actual database update to toggle isCompleted
-  
-  return {
-    statusCode: 200,
-    headers,
-    body: JSON.stringify({ id, isCompleted: true, updatedAt: new Date().toISOString() }),
-  };
+  try {
+    const connection = await getDbConnection();
+    
+    // First get the current completion status
+    const [checkRows] = await connection.execute(
+      'SELECT is_completed FROM medication_doses WHERE id = ? AND user_id = ? AND is_active = true',
+      [id, userId]
+    );
+    
+    if ((checkRows as any[]).length === 0) {
+      return {
+        statusCode: 404,
+        headers,
+        body: JSON.stringify({ error: 'Medication not found' }),
+      };
+    }
+    
+    const currentStatus = (checkRows as any[])[0].is_completed;
+    const newStatus = !currentStatus;
+    
+    // Toggle the completion status
+    await connection.execute(
+      'UPDATE medication_doses SET is_completed = ?, updated_at = NOW() WHERE id = ? AND user_id = ?',
+      [newStatus, id, userId]
+    );
+    
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({ 
+        id, 
+        isCompleted: newStatus, 
+        updatedAt: new Date().toISOString() 
+      }),
+    };
+  } catch (error) {
+    console.error('Error toggling medication completion:', error);
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({ error: 'Failed to toggle medication completion' }),
+    };
+  }
 }
 
 async function deleteMedication(
@@ -372,11 +463,40 @@ async function deleteMedication(
   userId: string,
   headers: any
 ): Promise<APIGatewayProxyResultV2> {
-  // TODO: Replace with actual database soft delete (set isActive = false)
-  
-  return {
-    statusCode: 204,
-    headers,
-    body: '',
-  };
+  try {
+    const connection = await getDbConnection();
+    
+    // First check if the medication exists and belongs to the user
+    const [checkRows] = await connection.execute(
+      'SELECT id FROM medication_doses WHERE id = ? AND user_id = ? AND is_active = true',
+      [id, userId]
+    );
+    
+    if ((checkRows as any[]).length === 0) {
+      return {
+        statusCode: 404,
+        headers,
+        body: JSON.stringify({ error: 'Medication not found' }),
+      };
+    }
+    
+    // Soft delete by setting is_active = false
+    await connection.execute(
+      'UPDATE medication_doses SET is_active = false, updated_at = NOW() WHERE id = ? AND user_id = ?',
+      [id, userId]
+    );
+    
+    return {
+      statusCode: 204,
+      headers,
+      body: '',
+    };
+  } catch (error) {
+    console.error('Error deleting medication:', error);
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({ error: 'Failed to delete medication' }),
+    };
+  }
 }

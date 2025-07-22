@@ -20,7 +20,7 @@ export default $config({
       name: "medication-manager-monorepo",
       removal: input?.stage === "production" ? "retain" : "remove",
       protect: ["production"].includes(input?.stage),
-      home: "aws",
+      home: "aws", // must use the literal here to satisfy the type
       providers: {
         aws: {
           profile: environment.SST_USER,
