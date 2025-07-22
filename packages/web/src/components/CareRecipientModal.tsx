@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { MedicationDose, CareRecipient } from '../lib/mockData';
 import MedicationInactiveModal from './MedicationInactiveModal';
+import MedicationTakenModal from './MedicationTakenModal';
 
 interface CareRecipientModalProps {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface CareRecipientModalProps {
   careRecipient: CareRecipient | null;
   doses: MedicationDose[];
   onMedicationInactivated?: () => void;
+  onMedicationCompleted?: () => void;
 }
 
 export default function CareRecipientModal({
@@ -17,24 +19,27 @@ export default function CareRecipientModal({
   onClose,
   careRecipient,
   doses,
-  onMedicationInactivated
+  onMedicationInactivated,
+  onMedicationCompleted
 }: CareRecipientModalProps) {
   const [inactiveModalOpen, setInactiveModalOpen] = useState(false);
-  const [selectedMedication, setSelectedMedication] = useState<{
-    id: string;
-    name: string;
-  } | null>(null);
+  const [takenModalOpen, setTakenModalOpen] = useState(false);
+  const [selectedMedication, setSelectedMedication] = useState<MedicationDose | null>(null);
 
   if (!isOpen || !careRecipient) return null;
 
   console.log("!!!   careRecipient", careRecipient);
 
-  const handleMedicationClick = (dose: MedicationDose) => {
-    setSelectedMedication({
-      id: String(dose.id), // Using dose.id as medication ID for now
-      name: dose.medicationName
-    });
+  const handleInactiveClick = (dose: MedicationDose, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setSelectedMedication(dose);
     setInactiveModalOpen(true);
+  };
+
+  const handleTakenClick = (dose: MedicationDose, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setSelectedMedication(dose);
+    setTakenModalOpen(true);
   };
 
   const handleMedicationInactivated = () => {
@@ -43,12 +48,19 @@ export default function CareRecipientModal({
     onMedicationInactivated?.();
   };
 
+  const handleMedicationCompleted = () => {
+    setTakenModalOpen(false);
+    setSelectedMedication(null);
+    onMedicationCompleted?.();
+  };
+
   // Filter and sort upcoming doses for this care recipient
   const today = new Date().toISOString().split('T')[0];
   const upcomingDoses = doses
     .filter(dose => 
       dose.careRecipientId === careRecipient.id && 
-      dose.date >= today
+      dose.date >= today &&
+      !dose.isCompleted
     )
     .sort((a, b) => {
       // Sort by date first, then by time
@@ -111,27 +123,74 @@ export default function CareRecipientModal({
               {upcomingDoses.map((dose) => (
                 <div
                   key={dose.id}
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
-                  onClick={() => handleMedicationClick(dose)}
-                  title="Click to mark as inactive"
+                  className={`flex items-center justify-between p-4 rounded-lg transition-colors ${
+                    dose.isCompleted 
+                      ? 'bg-gray-100 opacity-75' 
+                      : 'bg-gray-50 hover:bg-gray-100'
+                  }`}
                 >
                   <div className="flex-1">
-                    <div className="font-medium text-gray-900">
+                    <div className={`font-medium ${
+                      dose.isCompleted 
+                        ? 'text-gray-500 line-through' 
+                        : 'text-gray-900'
+                    }`}>
                       {dose.medicationName}
+                      {!!dose.isCompleted && (
+                        <span className="ml-2 text-xs text-green-600 font-normal">
+                          ✓ Taken
+                        </span>
+                      )}
                     </div>
                     {dose.recurrence && (
-                      <div className="text-xs text-blue-600 mt-1">
+                      <div className={`text-xs mt-1 ${
+                        dose.isCompleted 
+                          ? 'text-gray-400' 
+                          : 'text-blue-600'
+                      }`}>
                         {dose.recurrence === 'daily' ? 'Daily' : 'Weekly'}
                       </div>
                     )}
                   </div>
-                  <div className="text-right ml-4">
-                    <div className="font-medium text-gray-900">
-                      {formatDate(dose.date)}
+                  <div className="flex items-center space-x-3">
+                    <div className="text-right">
+                      <div className={`font-medium ${
+                        dose.isCompleted 
+                          ? 'text-gray-400' 
+                          : 'text-gray-900'
+                      }`}>
+                        {formatDate(dose.date)}
+                      </div>
+                      <div className={`text-sm ${
+                        dose.isCompleted 
+                          ? 'text-gray-400' 
+                          : 'text-gray-600'
+                      }`}>
+                        {formatTime(dose.time)}
+                      </div>
                     </div>
-                    <div className="text-sm text-gray-600">
-                      {formatTime(dose.time)}
-                    </div>
+                    {!dose.isCompleted && (
+                      <div className="flex items-center space-x-1">
+                        <button
+                          onClick={(e) => handleTakenClick(dose, e)}
+                          className="p-1 text-gray-400 hover:text-green-600 focus:outline-none focus:text-green-600"
+                          title="Mark as taken"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={(e) => handleInactiveClick(dose, e)}
+                          className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600"
+                          title="Mark medication as inactive"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728" />
+                          </svg>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -153,17 +212,32 @@ export default function CareRecipientModal({
         </div>
 
         {selectedMedication && (
-          <MedicationInactiveModal
-            isOpen={inactiveModalOpen}
-            onClose={() => {
-              setInactiveModalOpen(false);
-              setSelectedMedication(null);
-            }}
-            medicationId={selectedMedication.id}
-            medicationName={selectedMedication.name}
-            careRecipientName={careRecipient.name}
-            onInactivated={handleMedicationInactivated}
-          />
+          <>
+            <MedicationInactiveModal
+              isOpen={inactiveModalOpen}
+              onClose={() => {
+                setInactiveModalOpen(false);
+                setSelectedMedication(null);
+              }}
+              medicationId={selectedMedication.id.toString()}
+              medicationName={selectedMedication.medicationName}
+              careRecipientName={careRecipient.name}
+              onInactivated={handleMedicationInactivated}
+            />
+            <MedicationTakenModal
+              isOpen={takenModalOpen}
+              onClose={() => {
+                setTakenModalOpen(false);
+                setSelectedMedication(null);
+              }}
+              medicationId={selectedMedication.id}
+              medicationName={selectedMedication.medicationName}
+              careRecipientName={careRecipient.name}
+              scheduledDate={selectedMedication.date}
+              scheduledTime={selectedMedication.time}
+              onCompleted={handleMedicationCompleted}
+            />
+          </>
         )}
       </div>
     </div>

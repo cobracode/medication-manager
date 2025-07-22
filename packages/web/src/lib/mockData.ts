@@ -13,6 +13,7 @@ export interface MedicationDose {
   time: string;
   date: string;
   recurrence?: 'daily' | 'weekly';
+  isCompleted?: boolean;
 }
 
 // Type conversion utilities for backward compatibility
@@ -32,6 +33,7 @@ export function convertBackendMedicationDose(dose: import('./api-client').Medica
     careRecipientName: careRecipientName || dose.careRecipientName,
     time: dose.scheduledTime,
     date: dose.scheduledDate,
+    isCompleted: dose.isCompleted,
   };
 }
 

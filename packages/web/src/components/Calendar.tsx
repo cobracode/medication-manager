@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import MedicationInactiveModal from './MedicationInactiveModal';
+import MedicationTakenModal from './MedicationTakenModal';
 
 interface MedicationDose {
   id: number;
@@ -9,20 +10,23 @@ interface MedicationDose {
   careRecipientName: string;
   time: string;
   date: string;
+  isCompleted?: boolean;
 }
 
 interface CalendarProps {
   doses: MedicationDose[];
   onMedicationInactivated?: () => void;
+  onMedicationCompleted?: () => void;
 }
 
-export default function Calendar({ doses, onMedicationInactivated }: CalendarProps) {
+export default function Calendar({ doses, onMedicationInactivated, onMedicationCompleted }: CalendarProps) {
   const today = new Date();
   const todayIso = today.toISOString().split('T')[0];
 
   const [selectedDate, setSelectedDate] = useState<string>(todayIso);
   const [weekOffset, setWeekOffset] = useState<number>(0);
   const [inactiveModalOpen, setInactiveModalOpen] = useState(false);
+  const [takenModalOpen, setTakenModalOpen] = useState(false);
   const [selectedMedication, setSelectedMedication] = useState<MedicationDose | null>(null);
 
   // Get week starting from a specific offset
@@ -62,7 +66,8 @@ export default function Calendar({ doses, onMedicationInactivated }: CalendarPro
   };
 
   const getDosesForDate = (date: string) => {
-    return doses.filter(dose => dose.date === date);
+    // Filter out taken/completed doses
+    return doses.filter(dose => dose.date === date && !dose.isCompleted);
   };
 
   const currentWeek = getWeek(weekOffset);
@@ -85,10 +90,22 @@ export default function Calendar({ doses, onMedicationInactivated }: CalendarPro
     setInactiveModalOpen(true);
   };
 
+  const handleTakenClick = (dose: MedicationDose) => {
+    setSelectedMedication(dose);
+    setTakenModalOpen(true);
+  };
+
   const handleMedicationInactivated = () => {
     setSelectedMedication(null);
     if (onMedicationInactivated) {
       onMedicationInactivated();
+    }
+  };
+
+  const handleMedicationCompleted = () => {
+    setSelectedMedication(null);
+    if (onMedicationCompleted) {
+      onMedicationCompleted();
     }
   };
 
@@ -172,27 +189,65 @@ export default function Calendar({ doses, onMedicationInactivated }: CalendarPro
               .map((dose) => (
                 <div
                   key={dose.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  className={`flex items-center justify-between p-3 rounded-lg ${
+                    dose.isCompleted 
+                      ? 'bg-gray-100 opacity-75' 
+                      : 'bg-gray-50'
+                  }`}
                 >
                   <div>
-                    <div className="font-medium">{dose.medicationName}</div>
-                    <div className="text-sm text-gray-600">
+                    <div className={`font-medium ${
+                      dose.isCompleted 
+                        ? 'text-gray-500 line-through' 
+                        : 'text-gray-900'
+                    }`}>
+                      {dose.medicationName}
+                      {!!dose.isCompleted && (
+                        <span className="ml-2 text-xs text-green-600 font-normal">
+                          ✓ Taken
+                        </span>
+                      )}
+                    </div>
+                    <div className={`text-sm ${
+                      dose.isCompleted 
+                        ? 'text-gray-400' 
+                        : 'text-gray-600'
+                    }`}>
                       for {dose.careRecipientName}
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
                     <div className="text-right">
-                      <div className="font-medium text-blue-600">{dose.time}</div>
+                      <div className={`font-medium ${
+                        dose.isCompleted 
+                          ? 'text-gray-400' 
+                          : 'text-blue-600'
+                      }`}>
+                        {dose.time}
+                      </div>
                     </div>
-                    <button
-                      onClick={() => handleInactiveClick(dose)}
-                      className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600"
-                      title="Mark medication as inactive"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728" />
-                      </svg>
-                    </button>
+                    {!dose.isCompleted && (
+                      <>
+                        <button
+                          onClick={() => handleTakenClick(dose)}
+                          className="p-1 text-gray-400 hover:text-green-600 focus:outline-none focus:text-green-600"
+                          title="Mark as taken"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => handleInactiveClick(dose)}
+                          className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600"
+                          title="Mark medication as inactive"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728" />
+                          </svg>
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               ))
@@ -213,6 +268,20 @@ export default function Calendar({ doses, onMedicationInactivated }: CalendarPro
           medicationName={selectedMedication.medicationName}
           careRecipientName={selectedMedication.careRecipientName}
           onInactivated={handleMedicationInactivated}
+        />
+      )}
+
+      {/* Taken Modal */}
+      {selectedMedication && (
+        <MedicationTakenModal
+          isOpen={takenModalOpen}
+          onClose={() => setTakenModalOpen(false)}
+          medicationId={selectedMedication.id}
+          medicationName={selectedMedication.medicationName}
+          careRecipientName={selectedMedication.careRecipientName}
+          scheduledDate={selectedMedication.date}
+          scheduledTime={selectedMedication.time}
+          onCompleted={handleMedicationCompleted}
         />
       )}
     </div>
