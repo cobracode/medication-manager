@@ -1,15 +1,17 @@
 /// <reference path="./.sst/platform/config.d.ts" />
 
-const LOCAL_APP_URL = "http://localhost:3000";
+const LOCAL_PORT = 3000;
+const LOCAL_APP_URL = `http://localhost:${LOCAL_PORT}`;
 
 const environment = {
   APP_URL: LOCAL_APP_URL,
-  LOCAL_PORT: 3000,
+  LOCAL_PORT,
   AWS_CLIENT_ID: "cq3ooogjeamql973kmvi10qh1",
   AWS_LOGOUT_URI: LOCAL_APP_URL,
   AWS_COGNITO_DOMAIN: "https://us-east-1leyfkjdvb.auth.us-east-1.amazoncognito.com",
   AWS_COGNITO_ISSUER: "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_lEyFKjDvb",
-  AWS_REGION: "us-west-1"
+  AWS_REGION: "us-west-1",
+  SST_USER: "sst-user"
 };
 
 export default $config({
@@ -21,7 +23,7 @@ export default $config({
       home: "aws",
       providers: {
         aws: {
-          profile: "sst-user",
+          profile: environment.SST_USER,
           region: "us-west-1" // must use the literal here to satisfy the aws.Region type
         }
       }
