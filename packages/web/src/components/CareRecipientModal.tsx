@@ -65,7 +65,7 @@ export default function CareRecipientModal({
         <div className="flex justify-between items-center mb-4">
           <div>
             <h2 className="text-xl font-semibold">{careRecipient.name}</h2>
-            <p className="text-gray-600">{careRecipient.relationship}, age {careRecipient.age}</p>
+            <p className="text-gray-600">Age {careRecipient.age}</p>
           </div>
           <button
             onClick={onClose}

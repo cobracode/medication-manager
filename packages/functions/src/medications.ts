@@ -81,6 +81,11 @@ export const handler = async (
         if (event.rawPath.endsWith('/complete')) {
           return await toggleCompletion(pathParameters.id, userId, headers);
         }
+        // Handle marking medication inactive
+        if (event.rawPath.endsWith('/inactive')) {
+          const patchData = JSON.parse(event.body || '{}');
+          return await markMedicationInactive(pathParameters.id, userId, patchData, headers);
+        }
         return {
           statusCode: 400,
           headers,
@@ -497,6 +502,83 @@ async function deleteMedication(
       statusCode: 500,
       headers,
       body: JSON.stringify({ error: 'Failed to delete medication' }),
+    };
+  }
+}
+
+async function markMedicationInactive(
+  id: string,
+  userId: string,
+  data: { medicationName: string; careRecipientId?: string; scope: 'single' | 'all' },
+  headers: any
+): Promise<APIGatewayProxyResultV2> {
+  try {
+    const connection = await getDbConnection();
+    
+    // First check if the medication exists and belongs to the user
+    const [checkRows] = await connection.execute(
+      'SELECT medication_name, care_recipient_id FROM medication_doses WHERE id = ? AND user_id = ? AND is_active = true',
+      [id, userId]
+    );
+    
+    if ((checkRows as any[]).length === 0) {
+      return {
+        statusCode: 404,
+        headers,
+        body: JSON.stringify({ error: 'Medication not found' }),
+      };
+    }
+    
+    const medicationRow = (checkRows as any[])[0];
+    const medicationName = medicationRow.medication_name;
+    const careRecipientId = medicationRow.care_recipient_id;
+    
+    let affectedRows = 0;
+    
+    if (data.scope === 'single') {
+      // Mark inactive only for the specific care recipient
+      const [result] = await connection.execute(
+        'UPDATE medication_doses SET is_active = false, updated_at = NOW() WHERE medication_name = ? AND care_recipient_id = ? AND user_id = ? AND is_active = true',
+        [medicationName, careRecipientId, userId]
+      );
+      affectedRows = (result as any).affectedRows;
+      
+      // Also mark the template inactive if it exists
+      await connection.execute(
+        'UPDATE medication_templates SET is_active = false, updated_at = NOW() WHERE medication_name = ? AND care_recipient_id = ? AND user_id = ? AND is_active = true',
+        [medicationName, careRecipientId, userId]
+      );
+    } else if (data.scope === 'all') {
+      // Mark inactive for all care recipients
+      const [result] = await connection.execute(
+        'UPDATE medication_doses SET is_active = false, updated_at = NOW() WHERE medication_name = ? AND user_id = ? AND is_active = true',
+        [medicationName, userId]
+      );
+      affectedRows = (result as any).affectedRows;
+      
+      // Also mark all templates inactive for this medication
+      await connection.execute(
+        'UPDATE medication_templates SET is_active = false, updated_at = NOW() WHERE medication_name = ? AND user_id = ? AND is_active = true',
+        [medicationName, userId]
+      );
+    }
+    
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({ 
+        message: `Marked ${affectedRows} medication dose(s) as inactive`,
+        medicationName,
+        scope: data.scope,
+        affectedRows
+      }),
+    };
+  } catch (error) {
+    console.error('Error marking medication inactive:', error);
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({ error: 'Failed to mark medication inactive' }),
     };
   }
 }

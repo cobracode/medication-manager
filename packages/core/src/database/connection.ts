@@ -5,32 +5,32 @@ import { Resource } from 'sst';
 let connection: mysql.Connection | null = null;
 
 export async function getDbConnection(): Promise<mysql.Connection> {
-  console.log("!!!   database", Resource.MySql);
-  console.log("!!!   stringified database", JSON.stringify(Resource.MySql));
+  // console.log("!!!   database", Resource.MySql);
+  // console.log("!!!   stringified database", JSON.stringify(Resource.MySql));
 
 
   if (!connection) {
-    connection = await mysql.createConnection({
-      user: Resource.MySql.username,
-      password: Resource.MySql.password,
-      database: Resource.MySql.database,
-      host: Resource.MySql.host,
-      port: Resource.MySql.port || 3306,
-      ssl: {
-        rejectUnauthorized: false
-      }
-    });
+    // connection = await mysql.createConnection({
+    //   user: Resource.MySql.username,
+    //   password: Resource.MySql.password,
+    //   database: Resource.MySql.database,
+    //   host: Resource.MySql.host,
+    //   port: Resource.MySql.port || 3306,
+    //   ssl: {
+    //     rejectUnauthorized: false
+    //   }
+    // });
     
-    //   connection = await mysql.createConnection({
-    //     user: 'root',
-    //     password: 'password',
-    //     database: 'local',
-    //     port: 3306,
-    //     host: 'localhost',
-    //     ssl: {
-    //       rejectUnauthorized: false
-    //     }
-    //   });
+      connection = await mysql.createConnection({
+        user: 'root',
+        password: 'password',
+        database: 'local',
+        port: 3306,
+        host: 'localhost',
+        ssl: {
+          rejectUnauthorized: false
+        }
+      });
   }
   
   return connection;

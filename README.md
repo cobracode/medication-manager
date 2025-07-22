@@ -10,6 +10,11 @@ A simple medication tracking app.
 1. Should the care recipients fit into explicit categories (parent, child, pet, friend, ...)?
 
 
+
+## Business Decisions
+1. 
+
+
 ## Steps
 - [x] Setup SST skeleton
   - [x] download/install SST

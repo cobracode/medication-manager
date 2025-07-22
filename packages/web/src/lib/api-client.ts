@@ -192,6 +192,13 @@ class ApiClient {
     });
   }
 
+  async markMedicationInactive(id: string, scope: 'single' | 'all'): Promise<{ message: string; medicationName: string; scope: string; affectedRows: number }> {
+    return this.request(`/medications/${id}/inactive`, {
+      method: 'PATCH',
+      body: JSON.stringify({ scope }),
+    });
+  }
+
   // User Profile API
   async getUserProfile(): Promise<any> {
     return this.request('/user/profile');

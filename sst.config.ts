@@ -4,11 +4,14 @@ const LOCAL_PORT = 3000;
 const LOCAL_APP_URL = `http://localhost:${LOCAL_PORT}`;
 const PROD_APP_URL = "https://d1cqrybgbhampe.cloudfront.net";
 
+// Switch between envs
+const USE_APP_URL = LOCAL_APP_URL;
+
 const environment = {
-  APP_URL: PROD_APP_URL,
+  APP_URL: USE_APP_URL,
   LOCAL_PORT,
   AWS_CLIENT_ID: "cq3ooogjeamql973kmvi10qh1",
-  AWS_LOGOUT_URI: PROD_APP_URL,
+  AWS_LOGOUT_URI: USE_APP_URL,
   AWS_COGNITO_DOMAIN: "https://us-east-1leyfkjdvb.auth.us-east-1.amazoncognito.com",
   AWS_COGNITO_ISSUER: "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_lEyFKjDvb",
   AWS_REGION: "us-west-1",
@@ -44,7 +47,7 @@ export default $config({
         NEXT_PUBLIC_COGNITO_DOMAIN: environment.AWS_COGNITO_DOMAIN,
         NEXT_PUBLIC_COGNITO_ISSUER: environment.AWS_COGNITO_ISSUER,
         NEXT_PUBLIC_LOGOUT_URI: environment.AWS_LOGOUT_URI,
-        NEXT_PUBLIC_APP_URL: PROD_APP_URL, // Updated for production deployment
+        NEXT_PUBLIC_APP_URL: USE_APP_URL, // Updated for production deployment
         NEXT_PUBLIC_API_URL: api.medicationApi.url
       }
     });

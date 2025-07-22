@@ -132,6 +132,26 @@ export default function MedicationDashboard({ user, onSignOut }: MedicationDashb
     setIsCareRecipientModalOpen(true);
   };
 
+  const handleMedicationInactivated = async () => {
+    try {
+      setError(null);
+      
+      // Reload medications to reflect the inactive status
+      const backendMedications = await apiClient.getMedications({ isActive: true });
+      
+      // Convert medications with recipient names
+      const recipientMap = new Map(careRecipients.map(r => [r.id, r.name]));
+      const convertedDoses = backendMedications.map(dose => 
+        convertBackendMedicationDose(dose, recipientMap.get(dose.careRecipientId) || 'Unknown')
+      );
+      setDoses(convertedDoses);
+      
+    } catch (err) {
+      console.error('Failed to reload medications after inactivation:', err);
+      setError(err instanceof Error ? err.message : 'Failed to reload medications');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -190,7 +210,7 @@ export default function MedicationDashboard({ user, onSignOut }: MedicationDashb
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Calendar */}
             <div className="lg:col-span-3">
-              <Calendar doses={doses} />
+              <Calendar doses={doses} onMedicationInactivated={handleMedicationInactivated} />
             </div>
 
             {/* Care Recipients */}

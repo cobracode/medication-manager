@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import MedicationInactiveModal from './MedicationInactiveModal';
 
 interface MedicationDose {
   id: number;
@@ -12,9 +13,10 @@ interface MedicationDose {
 
 interface CalendarProps {
   doses: MedicationDose[];
+  onMedicationInactivated?: () => void;
 }
 
-export default function Calendar({ doses }: CalendarProps) {
+export default function Calendar({ doses, onMedicationInactivated }: CalendarProps) {
   const today = new Date();
   const todayIso = today.toISOString().split('T')[0];
   // console.log("today", today, todayIso);
@@ -23,6 +25,8 @@ export default function Calendar({ doses }: CalendarProps) {
 
   const [selectedDate, setSelectedDate] = useState<string>(todayIso);
   const [weekOffset, setWeekOffset] = useState<number>(0);
+  const [inactiveModalOpen, setInactiveModalOpen] = useState(false);
+  const [selectedMedication, setSelectedMedication] = useState<MedicationDose | null>(null);
   // console.log("selectedDate", selectedDate);
 
   // Get week starting from a specific offset
@@ -78,6 +82,18 @@ export default function Calendar({ doses }: CalendarProps) {
       return `${firstMonth} ${firstDay.getDate()}-${lastDay.getDate()}`;
     } else {
       return `${firstMonth} ${firstDay.getDate()} - ${lastMonth} ${lastDay.getDate()}`;
+    }
+  };
+
+  const handleInactiveClick = (dose: MedicationDose) => {
+    setSelectedMedication(dose);
+    setInactiveModalOpen(true);
+  };
+
+  const handleMedicationInactivated = () => {
+    setSelectedMedication(null);
+    if (onMedicationInactivated) {
+      onMedicationInactivated();
     }
   };
 
@@ -169,8 +185,19 @@ export default function Calendar({ doses }: CalendarProps) {
                       for {dose.careRecipientName}
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="font-medium text-blue-600">{dose.time}</div>
+                  <div className="flex items-center space-x-2">
+                    <div className="text-right">
+                      <div className="font-medium text-blue-600">{dose.time}</div>
+                    </div>
+                    <button
+                      onClick={() => handleInactiveClick(dose)}
+                      className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600"
+                      title="Mark medication as inactive"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728" />
+                      </svg>
+                    </button>
                   </div>
                 </div>
               ))
@@ -181,6 +208,18 @@ export default function Calendar({ doses }: CalendarProps) {
           )}
         </div>
       </div>
+
+      {/* Inactive Modal */}
+      {selectedMedication && (
+        <MedicationInactiveModal
+          isOpen={inactiveModalOpen}
+          onClose={() => setInactiveModalOpen(false)}
+          medicationId={selectedMedication.id.toString()}
+          medicationName={selectedMedication.medicationName}
+          careRecipientName={selectedMedication.careRecipientName}
+          onInactivated={handleMedicationInactivated}
+        />
+      )}
     </div>
   );
 }
