@@ -33,12 +33,17 @@ export default function Calendar({ doses, onMedicationInactivated, onMedicationC
   const getWeek = (offset: number) => {
     const days = [];
     const today = new Date();
-    const startDate = new Date(today);
-    startDate.setDate(today.getDate() + (offset * 7));
+    
+    // Find Monday of current week
+    const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // If Sunday, go back 6 days, otherwise go back to Monday
+    
+    const monday = new Date(today);
+    monday.setDate(today.getDate() + mondayOffset + (offset * 7));
     
     for (let i = 0; i < 7; i++) {
-      const date = new Date(startDate);
-      date.setDate(startDate.getDate() + i);
+      const date = new Date(monday);
+      date.setDate(monday.getDate() + i);
       days.push(date.toISOString().split('T')[0]);
     }
 
