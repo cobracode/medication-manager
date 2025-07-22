@@ -4,30 +4,30 @@ import { vpc } from "./vpc";
 
 // Care Recipients Lambda
 const careRecipientsFunction = new sst.aws.Function("CareRecipientsFunction", {
-  //vpc,
+  vpc,
   handler: "packages/functions/src/care-recipients.handler",
   link: [mysql],
 });
 
 // Medications Lambda  
 const medicationsFunction = new sst.aws.Function("MedicationsFunction", {
-  //vpc,
+  vpc,
   handler: "packages/functions/src/medications.handler",
   link: [mysql, bucket],
 });
 
 // User Profile Lambda
 const userFunction = new sst.aws.Function("UserFunction", {
-  //vpc,
+  vpc,
   handler: "packages/functions/src/user.handler", 
   link: [mysql, bucket],
 });
 
 // API Gateway with Cognito JWT authentication and CORS
 export const medicationApi = new sst.aws.ApiGatewayV2("MedicationApi", {
-  //vpc,
+  vpc,
   cors: {
-    allowOrigins: ["https://d1cqrybgbhampe.cloudfront.net", "http://localhost:3000"],
+    allowOrigins: ["https://d3e7xe6qxi2zx7.cloudfront.net", "http://localhost:3000"],
     allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowHeaders: ["Content-Type", "Authorization"],
   },

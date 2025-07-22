@@ -2,10 +2,11 @@
 
 const LOCAL_PORT = 3000;
 const LOCAL_APP_URL = `http://localhost:${LOCAL_PORT}`;
-const PROD_APP_URL = "https://d1cqrybgbhampe.cloudfront.net";
+const PROD_APP_URL = "https://d3e7xe6qxi2zx7.cloudfront.net";
 
 // Switch between envs
-const USE_APP_URL = LOCAL_APP_URL;
+// const USE_APP_URL = LOCAL_APP_URL;
+const USE_APP_URL = PROD_APP_URL;
 
 const environment = {
   APP_URL: USE_APP_URL,
