@@ -31,7 +31,7 @@ export function convertBackendMedicationDose(dose: import('./api-client').Medica
     id: dose.id,
     medicationName: dose.medicationName,
     careRecipientId: dose.careRecipientId,
-    careRecipientName,
+    careRecipientName: careRecipientName || dose.careRecipientName,
     time: dose.scheduledTime,
     date: dose.scheduledDate,
   };

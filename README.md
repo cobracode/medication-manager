@@ -28,11 +28,11 @@ A simple medication tracking app.
 - [x] Setup backend skeleton
 - [x] Setup frontend skeleton
 - [x] build components
-- [ ] make a medication as inactive
-- [ ] deploy to 'prod' and verify functionality
-  - [ ] setup the prod mysql db
+- [x] make a medication as inactive
+- [x] deploy to 'prod' and verify functionality
+  - [x] setup the prod mysql db
 - [ ] Remove 'remove medication functionality'
-- [ ] Change update medication to mark medication inactive
+- [x] Change update medication to mark medication inactive
 - [ ] Add tests
 - [ ] Fixes
   - [ ] Fix logout 400 error

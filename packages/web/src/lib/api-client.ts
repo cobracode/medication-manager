@@ -15,7 +15,7 @@ export interface MedicationDose {
   id: number;
   medicationName: string;
   careRecipientId: string;
-  careRecipientName?: string; // populated by join
+  careRecipientName: string; // populated by join
   scheduledDate: string;
   scheduledTime: string;
   dosage: string;
@@ -103,8 +103,6 @@ class ApiClient {
           ...options.headers,
         },
       });
-
-      console.log("!!! - response", response);
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));

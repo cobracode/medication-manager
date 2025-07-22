@@ -19,15 +19,11 @@ interface CalendarProps {
 export default function Calendar({ doses, onMedicationInactivated }: CalendarProps) {
   const today = new Date();
   const todayIso = today.toISOString().split('T')[0];
-  // console.log("today", today, todayIso);
-
-  console.log("!!!   doses", doses);
 
   const [selectedDate, setSelectedDate] = useState<string>(todayIso);
   const [weekOffset, setWeekOffset] = useState<number>(0);
   const [inactiveModalOpen, setInactiveModalOpen] = useState(false);
   const [selectedMedication, setSelectedMedication] = useState<MedicationDose | null>(null);
-  // console.log("selectedDate", selectedDate);
 
   // Get week starting from a specific offset
   const getWeek = (offset: number) => {
@@ -41,7 +37,7 @@ export default function Calendar({ doses, onMedicationInactivated }: CalendarPro
       date.setDate(startDate.getDate() + i);
       days.push(date.toISOString().split('T')[0]);
     }
-    // console.log("week days", days);
+
     return days;
   };
 
@@ -66,7 +62,6 @@ export default function Calendar({ doses, onMedicationInactivated }: CalendarPro
   };
 
   const getDosesForDate = (date: string) => {
-    console.log("!!!   getDosesForDate, date", date);
     return doses.filter(dose => dose.date === date);
   };
 

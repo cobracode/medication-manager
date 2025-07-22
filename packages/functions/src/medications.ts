@@ -162,8 +162,6 @@ async function getMedications(
       createdAt: row.created_at,
     }));
 
-    console.log("!!!   medications", medications);
-
     return {
       statusCode: 200,
       headers,
@@ -186,17 +184,12 @@ async function createMedication(
 ): Promise<APIGatewayProxyResultV2> {
   try {
     const connection = await getDbConnection();
-
-    // console.log("!!!   userId", userId);
-    // console.log("!!!   data", data);
     
     // First, verify the care recipient belongs to the user
     const careRecipientCheck = await connection.execute(
       'SELECT id FROM care_recipients WHERE id = ? AND caring_user_id = ?',
       [data.careRecipientId, userId]
     );
-    
-    // console.log("!!!   careRecipientCheck", careRecipientCheck);
 
     if ((careRecipientCheck[0] as any[]).length === 0) {
       return {

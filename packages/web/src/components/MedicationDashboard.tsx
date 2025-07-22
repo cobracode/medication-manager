@@ -54,9 +54,6 @@ export default function MedicationDashboard({ user, onSignOut }: MedicationDashb
           apiClient.getMedications({ isActive: true })
         ]);
 
-        console.log("!!!   backendRecipients", backendRecipients);
-        console.log("!!!   backendMedications", backendMedications);
-
         // Convert backend data to frontend format
         const convertedRecipients = backendRecipients.map(convertBackendCareRecipient);
         setCareRecipients(convertedRecipients);
@@ -110,11 +107,9 @@ export default function MedicationDashboard({ user, onSignOut }: MedicationDashb
         recurrenceType: newMedication.recurrence || 'none',
         recurrenceEndDate,
       });
-
-      console.log("!!!   createdDoses", createdDoses);
-
       // Convert to frontend format and add to state
-      const careRecipient = careRecipients.find(cr => cr.id === newMedication.careRecipientId);
+      const careRecipient = careRecipients.find(cr => Number(cr.id) === Number(newMedication.careRecipientId));
+      
       const convertedDoses = createdDoses?.doses?.map(dose => 
         convertBackendMedicationDose(dose, careRecipient?.name || 'Unknown')
       );
