@@ -4,7 +4,8 @@
   "type": "module",
   "dependencies": {
     "@medication-manager/core": "*",
-    "sst": "*"
+    "sst": "*",
+    "mysql2": "^3.6.5"
   },
   "scripts": {
     "shell": "sst shell tsx",

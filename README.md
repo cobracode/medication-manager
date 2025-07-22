@@ -15,13 +15,14 @@ A simple medication tracking app.
   - [x] download/install SST
   - [x] setup config file
 - [x] Setup DB skeleton
-  - [ ] setup data model
+  - [x] setup data model
+  - [ ] migrate/init data
 - [x] Setup auth
   - [x] access user info in react
   - [ ] access user info in the lambda function
 - [x] Setup backend skeleton
 - [x] Setup frontend skeleton
-- [ ] build components
+- [x] build components
 - [ ] Add tests
 - [ ] Fixes
   - [ ] Fix logout 400 error

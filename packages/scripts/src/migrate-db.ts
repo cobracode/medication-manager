@@ -1,8 +1,12 @@
 #!/usr/bin/env node
 
 import { readFile } from 'fs/promises';
-import { join } from 'path';
-import { getDbConnection, closeDbConnection } from '@medication-manager/core/database/connection';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { getDbConnection, closeDbConnection } from '../../core/src/database/connection.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 async function runMigration() {
   try {
@@ -48,9 +52,7 @@ async function runMigration() {
   }
 }
 
-// Run migration if this script is executed directly
-if (require.main === module) {
-  runMigration();
-}
+// Run migration (always execute when imported as script)
+runMigration();
 
 export { runMigration };
