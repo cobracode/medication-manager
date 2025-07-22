@@ -1,5 +1,7 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { Resource } from 'sst';
+import { getDbConnection } from '@medication-manager/core/database/connection';
+import { randomUUID } from 'crypto';
 
 interface MedicationDose {
   id: string;
@@ -171,22 +173,131 @@ async function createMedication(
   data: CreateMedicationRequest,
   headers: any
 ): Promise<APIGatewayProxyResultV2> {
-  // TODO: Replace with actual database insert
-  // Handle recurrence patterns by creating multiple dose entries
-  
-  const doses: MedicationDose[] = [];
-  
-  if (data.recurrenceType === 'daily' && data.recurrenceEndDate) {
-    // Generate daily doses
-    const startDate = new Date(data.scheduledDate);
-    const endDate = new Date(data.recurrenceEndDate);
+  try {
+    const connection = await getDbConnection();
     
-    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+    // First, verify the care recipient belongs to the user
+    const careRecipientCheck = await connection.execute(
+      'SELECT id FROM care_recipients WHERE id = ? AND user_id = ? AND is_active = true',
+      [data.careRecipientId, userId]
+    );
+    
+    if ((careRecipientCheck[0] as any[]).length === 0) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Invalid care recipient ID' }),
+      };
+    }
+    
+    const doses: MedicationDose[] = [];
+    let templateId: string | null = null;
+    
+    // Create medication template if recurring
+    if (data.recurrenceType && data.recurrenceType !== 'none' && data.recurrenceEndDate) {
+      templateId = randomUUID();
+      
+      // Insert medication template
+      await connection.execute(
+        `INSERT INTO medication_templates 
+         (id, user_id, care_recipient_id, medication_name, dosage, time_of_day, 
+          recurrence_type, start_date, end_date, is_active, created_at, updated_at) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, true, NOW(), NOW())`,
+        [
+          templateId,
+          userId,
+          data.careRecipientId,
+          data.medicationName,
+          data.dosage,
+          data.scheduledTime,
+          data.recurrenceType,
+          data.scheduledDate,
+          data.recurrenceEndDate
+        ]
+      );
+    }
+    
+    // Generate dose entries
+    if (data.recurrenceType === 'daily' && data.recurrenceEndDate) {
+      // Generate daily doses
+      const startDate = new Date(data.scheduledDate);
+      const endDate = new Date(data.recurrenceEndDate);
+      
+      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+        const doseId = randomUUID();
+        const scheduledDate = d.toISOString().split('T')[0];
+        
+        await connection.execute(
+          `INSERT INTO medication_doses 
+           (id, user_id, care_recipient_id, medication_name, dosage, 
+            scheduled_date, scheduled_time, is_completed, is_active, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, false, true, NOW(), NOW())`,
+          [doseId, userId, data.careRecipientId, data.medicationName, data.dosage, 
+           scheduledDate, data.scheduledTime]
+        );
+        
+        doses.push({
+          id: doseId,
+          medicationName: data.medicationName,
+          careRecipientId: data.careRecipientId,
+          scheduledDate,
+          scheduledTime: data.scheduledTime,
+          dosage: data.dosage,
+          isCompleted: false,
+          isActive: true,
+          userId,
+          createdAt: new Date().toISOString(),
+        });
+      }
+    } else if (data.recurrenceType === 'weekly' && data.recurrenceEndDate) {
+      // Generate weekly doses
+      const startDate = new Date(data.scheduledDate);
+      const endDate = new Date(data.recurrenceEndDate);
+      
+      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 7)) {
+        const doseId = randomUUID();
+        const scheduledDate = d.toISOString().split('T')[0];
+        
+        await connection.execute(
+          `INSERT INTO medication_doses 
+           (id, user_id, care_recipient_id, medication_name, dosage, 
+            scheduled_date, scheduled_time, is_completed, is_active, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, false, true, NOW(), NOW())`,
+          [doseId, userId, data.careRecipientId, data.medicationName, data.dosage, 
+           scheduledDate, data.scheduledTime]
+        );
+        
+        doses.push({
+          id: doseId,
+          medicationName: data.medicationName,
+          careRecipientId: data.careRecipientId,
+          scheduledDate,
+          scheduledTime: data.scheduledTime,
+          dosage: data.dosage,
+          isCompleted: false,
+          isActive: true,
+          userId,
+          createdAt: new Date().toISOString(),
+        });
+      }
+    } else {
+      // Single dose
+      const doseId = randomUUID();
+      
+      await connection.execute(
+        `INSERT INTO medication_doses 
+         (id, user_id, care_recipient_id, medication_name, dosage, 
+          scheduled_date, scheduled_time, is_completed, is_active, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, false, true, NOW(), NOW())`,
+        [doseId, userId, data.careRecipientId, data.medicationName, data.dosage, 
+         data.scheduledDate, data.scheduledTime]
+      );
+      
       doses.push({
-        id: `${Date.now()}-${d.getTime()}`,
+        id: doseId,
         medicationName: data.medicationName,
         careRecipientId: data.careRecipientId,
-        scheduledDate: d.toISOString().split('T')[0],
+        scheduledDate: data.scheduledDate,
         scheduledTime: data.scheduledTime,
         dosage: data.dosage,
         isCompleted: false,
@@ -195,46 +306,24 @@ async function createMedication(
         createdAt: new Date().toISOString(),
       });
     }
-  } else if (data.recurrenceType === 'weekly' && data.recurrenceEndDate) {
-    // Generate weekly doses
-    const startDate = new Date(data.scheduledDate);
-    const endDate = new Date(data.recurrenceEndDate);
-    
-    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 7)) {
-      doses.push({
-        id: `${Date.now()}-${d.getTime()}`,
-        medicationName: data.medicationName,
-        careRecipientId: data.careRecipientId,
-        scheduledDate: d.toISOString().split('T')[0],
-        scheduledTime: data.scheduledTime,
-        dosage: data.dosage,
-        isCompleted: false,
-        isActive: true,
-        userId,
-        createdAt: new Date().toISOString(),
-      });
-    }
-  } else {
-    // Single dose
-    doses.push({
-      id: Date.now().toString(),
-      medicationName: data.medicationName,
-      careRecipientId: data.careRecipientId,
-      scheduledDate: data.scheduledDate,
-      scheduledTime: data.scheduledTime,
-      dosage: data.dosage,
-      isCompleted: false,
-      isActive: true,
-      userId,
-      createdAt: new Date().toISOString(),
-    });
-  }
 
-  return {
-    statusCode: 201,
-    headers,
-    body: JSON.stringify(doses),
-  };
+    return {
+      statusCode: 201,
+      headers,
+      body: JSON.stringify({ 
+        doses, 
+        templateId,
+        message: `Created ${doses.length} medication dose(s)` 
+      }),
+    };
+  } catch (error) {
+    console.error('Error creating medication:', error);
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({ error: 'Failed to create medication' }),
+    };
+  }
 }
 
 async function updateMedication(
