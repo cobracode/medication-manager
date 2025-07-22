@@ -18,7 +18,7 @@ Most of my time was spent debugging AWS Cognito issues and then DB connectivity 
 **Deferred items:**
 1. Fixing a few logic bugs: There's a bug around the current day and the week in the calendar view.
 2. Unit tests: while there is a script or two for testing out database functionality, unit tests were deferred to get the core functionality running.
-3. Refactoring the code, now that it's in working order, to remove some of the cruft from prototyping various ways to do things.
+3. Refactoring the code, now that it's in working order, to remove some of the cruft from prototyping various ways to do things. This includes more solid and secure config for things like environment variables in `sst.config.ts`.
 4. (Possibly) Better error messages: while HTTP status codes are largely correct and the error messages basic, but adequate, with time I'd of liked to audit them and make them stronger, if applicable.
 
 
