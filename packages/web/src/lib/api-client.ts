@@ -77,8 +77,8 @@ class ApiClient {
       'Content-Type': 'application/json',
     };
 
-    if (this.user?.access_token) {
-      headers.Authorization = `Bearer ${this.user.access_token}`;
+    if (this.user?.id_token) {
+      headers.Authorization = `Bearer ${this.user.id_token}`;
     }
 
     return headers;

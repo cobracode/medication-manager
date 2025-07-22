@@ -48,8 +48,9 @@ export default function MedicationDashboard({ user, onSignOut }: MedicationDashb
         setLoading(true);
         setError(null);
         
-        // Load care recipients and medications in parallel
-        const [backendRecipients, backendMedications] = await Promise.all([
+        // Ensure user profile exists (creates user if needed), then load care recipients and medications
+        const [userProfile, backendRecipients, backendMedications] = await Promise.all([
+          apiClient.getUserProfile(),
           apiClient.getCareRecipients(),
           apiClient.getMedications({ isActive: true })
         ]);

@@ -37,15 +37,15 @@ export const handler = async (
 
   try {
     // Extract user ID from Cognito JWT claims
-    const userId = "test-user-1"; //event.requestContext.authorizer?.claims?.sub;
-    // if (!userId) {
-    //   return {
-    //     statusCode: 401,
-    //     headers,
-    //     body: JSON.stringify({ error: 'Unauthorized' }),
-    //   };
-    // }
-
+    const userId = (event.requestContext as any).authorizer?.jwt?.claims?.sub;
+  
+    if (!userId) {
+      return {
+        statusCode: 401,
+        headers,
+        body: JSON.stringify({ error: 'Unauthorized' }),
+      };
+    }
     const httpMethod = event.requestContext.http.method;
     const pathParameters = event.pathParameters;
     const queryParameters = event.queryStringParameters || {};
@@ -185,19 +185,19 @@ async function createMedication(
   try {
     const connection = await getDbConnection();
     
-    // First, verify the care recipient belongs to the user
-    const careRecipientCheck = await connection.execute(
-      'SELECT id FROM care_recipients WHERE id = ? AND caring_user_id = ?',
-      [data.careRecipientId, userId]
-    );
+    // // First, verify the care recipient belongs to the user
+    // const careRecipientCheck = await connection.execute(
+    //   'SELECT id FROM care_recipients WHERE id = ? AND caring_user_id = ?',
+    //   [data.careRecipientId, userId]
+    // );
 
-    if ((careRecipientCheck[0] as any[]).length === 0) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({ error: 'Invalid care recipient ID' }),
-      };
-    }
+    // if ((careRecipientCheck[0] as any[]).length === 0) {
+    //   return {
+    //     statusCode: 400,
+    //     headers,
+    //     body: JSON.stringify({ error: 'Invalid care recipient ID' }),
+    //   };
+    // }
     
     const doses: MedicationDose[] = [];
     let templateId: string | null = null;

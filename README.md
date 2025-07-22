@@ -23,9 +23,9 @@ A simple medication tracking app.
 - [x] Setup DB skeleton
   - [x] setup data model
   - [x] migrate/init data
-- [] Setup auth
-  - [] access user info in react
-  - [] access user info in the lambda function
+- [x] Setup auth
+  - [x] access user info in react
+  - [x] access user info in the lambda function
 - [x] Setup backend skeleton
 - [x] Setup frontend skeleton
 - [x] build components
@@ -35,7 +35,7 @@ A simple medication tracking app.
 - [x] Change update medication to mark medication inactive
 - [ ] Add tests
 - [ ] Remove 'remove medication functionality'
-- [ ] Remove legacy Hello World cruft
+- [x] Remove legacy Hello World cruft
 - [ ] Fixes
   - [ ] Fix logout 400 error
   - [ ] Fix initially selected day in calendar view

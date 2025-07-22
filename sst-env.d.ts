@@ -9,11 +9,6 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Function"
     }
-    "HelloWorldFunction": {
-      "name": string
-      "type": "sst.aws.Function"
-      "url": string
-    }
     "MedicationApi": {
       "type": "sst.aws.ApiGatewayV2"
       "url": string
@@ -30,10 +25,6 @@ declare module "sst" {
     "MedicationsFunction": {
       "name": string
       "type": "sst.aws.Function"
-    }
-    "MyBucket": {
-      "name": string
-      "type": "sst.aws.Bucket"
     }
     "MySql": {
       "database": string

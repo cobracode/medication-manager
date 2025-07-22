@@ -14,9 +14,6 @@ const environment = {
   AWS_COGNITO_CLIENT_ID: "3gnup5gt6bj39qho9irhj1valu",
   AWS_COGNITO_DOMAIN: "https://medication-manager.auth.us-west-1.amazoncognito.com",
   AWS_COGNITO_ISSUER: "https://cognito-idp.us-west-1.amazonaws.com/us-west-1_o5Pfbbu1G",
-  // AWS_CLIENT_ID: "cq3ooogjeamql973kmvi10qh1",
-  // AWS_COGNITO_DOMAIN: "https://us-east-1leyfkjdvb.auth.us-east-1.amazoncognito.com",
-  // AWS_COGNITO_ISSUER: "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_lEyFKjDvb",
   AWS_LOGOUT_URI: USE_APP_URL,
   AWS_REGION: "us-west-1",
   SST_USER: "sst-user"
@@ -38,10 +35,10 @@ export default $config({
     };
   },
   async run() {
-    const storage = await import("./infra/storage");
     const auth = await import("./infra/auth");
     const api = await import("./infra/api");
     const mysql = await import("./infra/db");
+    const db = await import("./infra/db");
 
     const webapp = new sst.aws.Nextjs("WebApp", {
       path: "packages/web",
@@ -57,22 +54,25 @@ export default $config({
     });
 
     return {
-      "api-arn": api.myApi.arn,
       "medication-api-url": api.medicationApi.url,
-      "webapp-url": webapp.url,
-      "webapp-urn": webapp.urn,
-      "webapp-sst-link": webapp.getSSTLink.toString(),
-      "bucket-name": storage.bucket.name,
-      mysql: mysql.mysql.host,
-      "mysql-id": mysql.mysql.id,
-      "mysql-database-get": mysql.mysql.database,
-      "cognito-user-pool-id": auth.userPool.id,
-      "cognito-client-id": auth.userPoolClient.id,
-      "userpool-id": auth.userPool.id,
-      "userpool-urn": auth.userPool.urn,
-      "userpool-arn": auth.userPool.arn,
-      "userpoolclient-id": auth.userPoolClient.id,
-      "userpoolclient-urn": auth.userPoolClient.urn
+      // FOR DEBUGGING ---
+      // "webapp-url": webapp.url,
+      // "webapp-urn": webapp.urn,
+      // "webapp-sst-link": webapp.getSSTLink.toString(),
+      // mysql: mysql.mysql.host,
+      // "mysql-id": mysql.mysql.id,
+      // "mysql-database-get": mysql.mysql.database,
+      // "cognito-user-pool-id": auth.userPool.id,
+      // "cognito-client-id": auth.userPoolClient.id,
+      // "userpool-id": auth.userPool.id,
+      // "userpool-urn": auth.userPool.urn,
+      // "userpool-arn": auth.userPool.arn,
+      // "userpoolclient-id": auth.userPoolClient.id,
+      // "userpoolclient-urn": auth.userPoolClient.urn,
+      // "mysql-user": db.mysql.username,
+      // "mysql-password": db.mysql.password,
+      // "mysql-database": db.mysql.database,
+      // "mysql-host": db.mysql.host  
     };
   },
 });

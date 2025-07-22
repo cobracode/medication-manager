@@ -5,9 +5,6 @@ import { Resource } from 'sst';
 let connection: mysql.Connection | null = null;
 
 export async function getDbConnection(): Promise<mysql.Connection> {
-  // console.log("!!!   database", Resource.MySql);
-  // console.log("!!!   stringified database", JSON.stringify(Resource.MySql));
-
   if (!connection) {
     connection = await mysql.createConnection({
       user: Resource.MySql.username,
