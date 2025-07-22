@@ -49,6 +49,15 @@ This was also part of the requirements, but it was nice to develop fully serverl
 | Quick to setup | Learning curve. While quick in theory, it's the runtime details and config mismatches that get you. |
 | Took care of provisioning, deploying, and all the gruntwork of hosting a web service ||
 
+
+### Database: AWS RDS + MySQL
+The data is fairly straightfoward, and using a SQL-family language makes CRUD operations simple and easy to find the relationships between them. I thought about DynamoDB but the scaling performance edge it may have over MySQL wasn't needed for this simple webapp.
+
+| Pros | Cons |
+|------|------|
+| Simple for CRUD operations | RDS setup within a VPC and having to use a NAT with the right settings took time to debug |
+| Good for querying relationships between entities | Not as simple "out of the box" as a NoSQL document |
+
 <br><br><br><br>
 
 
