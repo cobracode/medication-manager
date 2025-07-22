@@ -41,6 +41,19 @@ React was part of the requirements, and I did think about whether or not to use 
 | NextJS handles performance optimization ||
 
 
+### Auth: AWS Cognito
+I'd never tried this before, and when I learned it took care of user storage and auth, with many customizable options, including required user details fields, I wanted to give it a shot in this serverless-oriented tech stack that is already heavily AWS-leaning. I thought about using the OpenAuth that SST also recommends, which would have been a solid basic way to roll my own UX pages/modals for signup and signin, but wanted to be free of that for this project, and see just how simple Cognito could make things. Unfortunately, there was a big learning curve to this, including me manually creating a User Pool, per internet forums and AI's recommendations, which at times conflicted with the one spun up by SST. And the process of debugging what was going on, and which settings were being used where, took hours.
+
+Having said that, I now understand Cognito much better and how it plays with SST.
+
+| Pros | Cons |
+|------|------|
+| Takes care of user provisiong | Learning curve of itself |
+| Takes care of auth | Learning curve of using it with SST |
+| Takes care of UI for signup/signin | |
+| Many configurable options in the User Pool settings (MFA, Google, etc. IdP) | |
+
+
 ### Backend: AWS ApiGatewayV2 + AWS Lambda, via SST
 This was also part of the requirements, but it was nice to develop fully serverless.
 
