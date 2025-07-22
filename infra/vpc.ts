@@ -1,3 +1,3 @@
 export const vpc = new sst.aws.Vpc("Vpc", {
-  az: 1
+  az: 2
 });

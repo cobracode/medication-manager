@@ -5,34 +5,32 @@ import { Resource } from 'sst';
 let connection: mysql.Connection | null = null;
 
 export async function getDbConnection(): Promise<mysql.Connection> {
+  console.log("!!!   database", Resource.MySql);
+  console.log("!!!   stringified database", JSON.stringify(Resource.MySql));
+
+
   if (!connection) {
-    // In SST, the MySQL resource provides connection details
-    // For development, use hardcoded values from db.ts
-    const isDev = process.env.SST_STAGE === 'dev' || !process.env.SST_STAGE;
+    connection = await mysql.createConnection({
+      user: Resource.MySql.username,
+      password: Resource.MySql.password,
+      database: Resource.MySql.database,
+      host: Resource.MySql.host,
+      port: Resource.MySql.port || 3306,
+      ssl: {
+        rejectUnauthorized: false
+      }
+    });
     
-    if (isDev) {
-      connection = await mysql.createConnection({
-        host: 'localhost',
-        port: 3306,
-        user: 'root',
-        password: 'password',
-        database: 'local',
-        ssl: false,
-      });
-    } else {
-      // Production/staging - use SST Resource
-      // Note: This will need to be updated based on actual SST MySQL resource structure
-      connection = await mysql.createConnection({
-        host: Resource.MySql.host,
-        port: Resource.MySql.port || 3306,
-        user: Resource.MySql.username,
-        password: Resource.MySql.password,
-        database: Resource.MySql.database,
-        ssl: {
-          rejectUnauthorized: false
-        }
-      });
-    }
+    //   connection = await mysql.createConnection({
+    //     user: 'root',
+    //     password: 'password',
+    //     database: 'local',
+    //     port: 3306,
+    //     host: 'localhost',
+    //     ssl: {
+    //       rejectUnauthorized: false
+    //     }
+    //   });
   }
   
   return connection;

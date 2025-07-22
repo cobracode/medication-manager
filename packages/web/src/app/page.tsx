@@ -2,7 +2,7 @@
 'use client';
 
 import { useAuth } from 'react-oidc-context';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import MedicationDashboard from '../components/MedicationDashboard';
 
