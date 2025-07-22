@@ -11,10 +11,13 @@ const USE_APP_URL = PROD_APP_URL;
 const environment = {
   APP_URL: USE_APP_URL,
   LOCAL_PORT,
-  AWS_CLIENT_ID: "cq3ooogjeamql973kmvi10qh1",
+  AWS_COGNITO_CLIENT_ID: "3gnup5gt6bj39qho9irhj1valu",
+  AWS_COGNITO_DOMAIN: "https://medication-manager.auth.us-west-1.amazoncognito.com",
+  AWS_COGNITO_ISSUER: "https://cognito-idp.us-west-1.amazonaws.com/us-west-1_o5Pfbbu1G",
+  // AWS_CLIENT_ID: "cq3ooogjeamql973kmvi10qh1",
+  // AWS_COGNITO_DOMAIN: "https://us-east-1leyfkjdvb.auth.us-east-1.amazoncognito.com",
+  // AWS_COGNITO_ISSUER: "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_lEyFKjDvb",
   AWS_LOGOUT_URI: USE_APP_URL,
-  AWS_COGNITO_DOMAIN: "https://us-east-1leyfkjdvb.auth.us-east-1.amazoncognito.com",
-  AWS_COGNITO_ISSUER: "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_lEyFKjDvb",
   AWS_REGION: "us-west-1",
   SST_USER: "sst-user"
 };
@@ -44,7 +47,7 @@ export default $config({
       path: "packages/web",
       link: [api.medicationApi],
       environment: {
-        NEXT_PUBLIC_COGNITO_CLIENT_ID: environment.AWS_CLIENT_ID,
+        NEXT_PUBLIC_COGNITO_CLIENT_ID: environment.AWS_COGNITO_CLIENT_ID,
         NEXT_PUBLIC_COGNITO_DOMAIN: environment.AWS_COGNITO_DOMAIN,
         NEXT_PUBLIC_COGNITO_ISSUER: environment.AWS_COGNITO_ISSUER,
         NEXT_PUBLIC_LOGOUT_URI: environment.AWS_LOGOUT_URI,

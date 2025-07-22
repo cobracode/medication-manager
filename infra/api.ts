@@ -1,6 +1,7 @@
 import { bucket } from "./storage";
 import { mysql } from "./db";
 import { vpc } from "./vpc";
+import { userPoolClient } from "./auth";
 
 // Care Recipients Lambda
 const careRecipientsFunction = new sst.aws.Function("CareRecipientsFunction", {
@@ -31,63 +32,20 @@ export const medicationApi = new sst.aws.ApiGatewayV2("MedicationApi", {
     allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowHeaders: ["Content-Type", "Authorization"],
   },
-  
 });
 
-/*
-1. add authorizer
-2. connect it to each route
-
-
-*/
-
-
-// FROM DOCS
-// const authorizer = api.addAuthorizer({
-//   name: "myCognitoAuthorizer",
-//   jwt: {
-//     issuer: $interpolate`https://cognito-idp.${aws.getArnOutput(userPool).region}.amazonaws.com/${userPool.id}`,
-//     audiences: [userPoolClient.id]
-//   }
-// });
-
-
-// Create JWT Authorizer for Cognito - TEMP TURNING OFF TO SEE IF IT WORKS
-// const cognitoAuthorizer = medicationApi.addAuthorizer({
-//   name: "CognitoJwtAuthorizer",
-//   jwt: {
-//       // issuer: $interpolate`https://cognito-idp.us-west-1.amazonaws.com/${userPool.id}`,
-//       issuer: $interpolate`https://cognito-idp.${aws.getArnOutput(userPool).region}.amazonaws.com/${userPool.id}`,
-//       audiences: [userPoolClient.id]
-//     }
-// });
-  
-// const myAuthorizer = api.addAuthorizer({
-//   name: "MyAuthorizer",
-//   userPools: [userPool.arn]
-// });
-
-// api.route("GET /bar", "route.handler", {
-//   auth: {
-//     jwt: {
-//       issuer:
-//         "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_Rq4d8zILG",
-//       audiences: ["user@example.com"],
-//     },
-//   },
-// });
-
-// API Routes with Cognito JWT Authorization
-// medicationApi.route("GET /care-recipients", careRecipientsFunction.arn, {
-//   auth: { jwt: {
-//     issuer: $interpolate`https://cognito-idp.us-west-1.amazonaws.com/${userPool.id}`,
-//     audiences: [userPoolClient.id]
-//    } }
-// });
-
+// Create JWT Authorizer for Cognito
+const cognitoAuthorizer = medicationApi.addAuthorizer({
+  name: "CognitoJwtAuthorizer",
+  jwt: {
+      // issuer: $interpolate`https://cognito-idp.${aws.getArnOutput(userPool).region}.amazonaws.com/${userPool.id}`,
+      issuer: "https://cognito-idp.us-west-1.amazonaws.com/us-west-1_o5Pfbbu1G",
+      audiences: [userPoolClient.id]
+    }
+});
 
 // idea: take off auth and see if we can hit the endpoint
-medicationApi.route("GET /care-recipients", careRecipientsFunction.arn);
+medicationApi.route("GET /care-recipients", careRecipientsFunction.arn, { auth: { jwt: { authorizer: cognitoAuthorizer.id } } });
 medicationApi.route("POST /care-recipients", careRecipientsFunction.arn);
 medicationApi.route("PUT /care-recipients/{id}", careRecipientsFunction.arn);
 medicationApi.route("DELETE /care-recipients/{id}", careRecipientsFunction.arn);
@@ -152,3 +110,28 @@ export const myApi = new sst.aws.Function("HelloWorldFunction", {
   link: [bucket],
   handler: "packages/functions/src/api.helloWorld"
 });
+
+
+
+// const myAuthorizer = api.addAuthorizer({
+//   name: "MyAuthorizer",
+//   userPools: [userPool.arn]
+// });
+
+// api.route("GET /bar", "route.handler", {
+//   auth: {
+//     jwt: {
+//       issuer:
+//         "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_Rq4d8zILG",
+//       audiences: ["user@example.com"],
+//     },
+//   },
+// });
+
+// API Routes with Cognito JWT Authorization
+// medicationApi.route("GET /care-recipients", careRecipientsFunction.arn, {
+//   auth: { jwt: {
+//     issuer: $interpolate`https://cognito-idp.us-west-1.amazonaws.com/${userPool.id}`,
+//     audiences: [userPoolClient.id]
+//    } }
+// });

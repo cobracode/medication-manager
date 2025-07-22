@@ -1,6 +1,6 @@
 // Create Cognito User Pool for authentication
 export const userPool = new sst.aws.CognitoUserPool("MedicationManagerUserPool", {
-  aliases: ["email"]
+  usernames: ["email"]
 });
 
 // Add a client to the user pool

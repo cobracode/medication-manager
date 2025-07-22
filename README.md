@@ -11,8 +11,9 @@ A simple medication tracking app.
 
 
 
-## Business Decisions
-1. 
+## Business Decisions / Lessons Learned
+1. Getting AWS Cognito configured correctly was a bear and took much time
+   1. Kept running into "Login pages unavailable" after figuring out which user pool (there were eventually) to use
 
 
 ## Steps
@@ -22,18 +23,19 @@ A simple medication tracking app.
 - [x] Setup DB skeleton
   - [x] setup data model
   - [x] migrate/init data
-- [x] Setup auth
-  - [x] access user info in react
-  - [x] access user info in the lambda function
+- [] Setup auth
+  - [] access user info in react
+  - [] access user info in the lambda function
 - [x] Setup backend skeleton
 - [x] Setup frontend skeleton
 - [x] build components
 - [x] make a medication as inactive
 - [x] deploy to 'prod' and verify functionality
   - [x] setup the prod mysql db
-- [ ] Remove 'remove medication functionality'
 - [x] Change update medication to mark medication inactive
 - [ ] Add tests
+- [ ] Remove 'remove medication functionality'
+- [ ] Remove legacy Hello World cruft
 - [ ] Fixes
   - [ ] Fix logout 400 error
   - [ ] Fix initially selected day in calendar view
