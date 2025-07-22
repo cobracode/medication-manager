@@ -18,15 +18,26 @@ This being a serverless, cloud-native web application brought to mind Serverless
 
 | Pros | Cons |
 |------|------|
-| No need to learn/remember many AWS implementation details | Learning curve that took some good hours. TBF, many of those hours were with AWS Cognito and RDS issues|
+| No need to learn/remember many AWS implementation details | Learning curve that took some good hours. TBF, many of those hours were with AWS Cognito and RDS issues |
 | It's now something I've learned and used directly ||
 | Knowing it would help at Homethrive ||
 
 ### Frontend: React + NextJS + Tailwind CSS
-React was part of the requirements, and I did think about whether or not to use NextJS along with it. I chose to use it due to its "batteries included" approach to the router an
+React was part of the requirements, and I did think about whether or not to use NextJS and Tailwind CSS along with it. I chose to use it due to its "batteries included" approach to the router, first-class support for SPA/SSR, and hot reloading.
+
+| Pros | Cons |
+|------|------|
+| Many required pieces work out of the box | Bulkier |
+| NextJS handles performance optimization ||
 
 
+### Backend: AWS ApiGatewayV2 + AWS Lambda, via SST
+This was also part of the requirements, but it was nice to develop fully serverless.
 
+| Pros | Cons |
+|------|------|
+| Quick to setup | Learning curve. While quick in theory, it's the runtime details and config mismatches that get you. |
+| Took care of provisioning, deploying, and all the gruntwork of hosting a web service ||
 
 <br><br><br><br>
 
