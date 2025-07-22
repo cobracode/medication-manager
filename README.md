@@ -16,31 +16,6 @@ A simple medication tracking app.
    1. Kept running into "Login pages unavailable" after figuring out which user pool (there were eventually) to use
 
 
-## Steps
-- [x] Setup SST skeleton
-  - [x] download/install SST
-  - [x] setup config file
-- [x] Setup DB skeleton
-  - [x] setup data model
-  - [x] migrate/init data
-- [x] Setup auth
-  - [x] access user info in react
-  - [x] access user info in the lambda function
-- [x] Setup backend skeleton
-- [x] Setup frontend skeleton
-- [x] build components
-- [x] make a medication as inactive
-- [x] deploy to 'prod' and verify functionality
-  - [x] setup the prod mysql db
-- [x] Change update medication to mark medication inactive
-- [ ] Add tests
-- [ ] Remove 'remove medication functionality'
-- [x] Remove legacy Hello World cruft
-- [ ] Fixes
-  - [ ] Fix logout 400 error
-  - [ ] Fix initially selected day in calendar view
-
-
 ## Requirements
 1. User authentication (basic auth or API key)
 1. user can:

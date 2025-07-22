@@ -1,23 +1,47 @@
 'use client';
 
+import { useState } from 'react';
 import { MedicationDose, CareRecipient } from '../lib/mockData';
+import MedicationInactiveModal from './MedicationInactiveModal';
 
 interface CareRecipientModalProps {
   isOpen: boolean;
   onClose: () => void;
   careRecipient: CareRecipient | null;
   doses: MedicationDose[];
+  onMedicationInactivated?: () => void;
 }
 
 export default function CareRecipientModal({
   isOpen,
   onClose,
   careRecipient,
-  doses
+  doses,
+  onMedicationInactivated
 }: CareRecipientModalProps) {
+  const [inactiveModalOpen, setInactiveModalOpen] = useState(false);
+  const [selectedMedication, setSelectedMedication] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+
   if (!isOpen || !careRecipient) return null;
 
   console.log("!!!   careRecipient", careRecipient);
+
+  const handleMedicationClick = (dose: MedicationDose) => {
+    setSelectedMedication({
+      id: String(dose.id), // Using dose.id as medication ID for now
+      name: dose.medicationName
+    });
+    setInactiveModalOpen(true);
+  };
+
+  const handleMedicationInactivated = () => {
+    setInactiveModalOpen(false);
+    setSelectedMedication(null);
+    onMedicationInactivated?.();
+  };
 
   // Filter and sort upcoming doses for this care recipient
   const today = new Date().toISOString().split('T')[0];
@@ -87,7 +111,9 @@ export default function CareRecipientModal({
               {upcomingDoses.map((dose) => (
                 <div
                   key={dose.id}
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                  onClick={() => handleMedicationClick(dose)}
+                  title="Click to mark as inactive"
                 >
                   <div className="flex-1">
                     <div className="font-medium text-gray-900">
@@ -125,6 +151,20 @@ export default function CareRecipientModal({
             Close
           </button>
         </div>
+
+        {selectedMedication && (
+          <MedicationInactiveModal
+            isOpen={inactiveModalOpen}
+            onClose={() => {
+              setInactiveModalOpen(false);
+              setSelectedMedication(null);
+            }}
+            medicationId={selectedMedication.id}
+            medicationName={selectedMedication.name}
+            careRecipientName={careRecipient.name}
+            onInactivated={handleMedicationInactivated}
+          />
+        )}
       </div>
     </div>
   );

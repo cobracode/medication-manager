@@ -157,7 +157,7 @@ export default function MedicationDashboard({ user, onSignOut }: MedicationDashb
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Medication Manager</h1>
               <p className="text-gray-600">
-                Welcome, {user?.profile?.name || user?.profile?.nickname || user?.profile?.email}
+                Welcome, {user?.profile?.email}
               </p>
             </div>
             <div className="flex items-center space-x-4">
@@ -266,6 +266,7 @@ export default function MedicationDashboard({ user, onSignOut }: MedicationDashb
         onClose={() => setIsCareRecipientModalOpen(false)}
         careRecipient={selectedCareRecipient}
         doses={doses}
+        onMedicationInactivated={handleMedicationInactivated}
       />
     </div>
   );
