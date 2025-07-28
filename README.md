@@ -2,6 +2,9 @@
 A simple medication tracking app!
 
 ## Setup Instructions
+**NOTE: 7/27/25: To prevent AWS from charging me for these resources each day, I've removed the app from AWS (via `npx sst remove`).
+If you'd like to test this again, please email me: nader.matinnia@gmail.com**
+
 1. Go to the [Medication Manager](https://d3e7xe6qxi2zx7.cloudfront.net/).
 2. Create an account with your email by clicking Create an account.
 3. Check your email for the verification code and enter it when prompted.
