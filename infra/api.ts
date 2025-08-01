@@ -27,7 +27,7 @@ const userFunction = new sst.aws.Function("UserFunction", {
 export const medicationApi = new sst.aws.ApiGatewayV2("MedicationApi", {
   vpc,
   cors: {
-    allowOrigins: ["https://d3e7xe6qxi2zx7.cloudfront.net", "http://localhost:3000"],
+    allowOrigins: ["https://dshmeepf8hsf0.cloudfront.net", "http://localhost:3000"],
     allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowHeaders: ["Content-Type", "Authorization"],
   },
@@ -38,7 +38,7 @@ const cognitoAuthorizer = medicationApi.addAuthorizer({
   name: "CognitoJwtAuthorizer",
   jwt: {
       // issuer: $interpolate`https://cognito-idp.${aws.getArnOutput(userPool).region}.amazonaws.com/${userPool.id}`,
-      issuer: "https://cognito-idp.us-west-1.amazonaws.com/us-west-1_o5Pfbbu1G",
+      issuer: "https://cognito-idp.us-west-1.amazonaws.com/us-west-1_ws3E81kzB",
       audiences: [userPoolClient.id]
     }
 });

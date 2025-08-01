@@ -2,7 +2,7 @@
 
 const LOCAL_PORT = 3000;
 const LOCAL_APP_URL = `http://localhost:${LOCAL_PORT}`;
-const PROD_APP_URL = "https://d3e7xe6qxi2zx7.cloudfront.net";
+const PROD_APP_URL = "https://dshmeepf8hsf0.cloudfront.net";
 
 // Switch between envs
 // const USE_APP_URL = LOCAL_APP_URL;
@@ -11,9 +11,9 @@ const USE_APP_URL = PROD_APP_URL;
 const environment = {
   APP_URL: USE_APP_URL,
   LOCAL_PORT,
-  AWS_COGNITO_CLIENT_ID: "3gnup5gt6bj39qho9irhj1valu",
+  AWS_COGNITO_CLIENT_ID: "6q4gvq3h4e3nlkhg7up41l1fle",
   AWS_COGNITO_DOMAIN: "https://medication-manager.auth.us-west-1.amazoncognito.com",
-  AWS_COGNITO_ISSUER: "https://cognito-idp.us-west-1.amazonaws.com/us-west-1_o5Pfbbu1G",
+  AWS_COGNITO_ISSUER: "https://cognito-idp.us-west-1.amazonaws.com/us-west-1_ws3E81kzB",
   AWS_LOGOUT_URI: USE_APP_URL,
   AWS_REGION: "us-west-1",
   SST_USER: "sst-user"
